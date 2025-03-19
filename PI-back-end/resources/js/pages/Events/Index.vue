@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { defineProps, ref, computed } from 'vue';
 import { router } from "@inertiajs/vue3";
+import { Link } from '@inertiajs/vue3';
 
 
 interface Event {
@@ -9,6 +10,15 @@ interface Event {
     startdate: string;
     location: string;
     status: string;
+    start_time: string;
+    end_time: string;
+    description: string;
+    limit_participants: number;
+    image: string;
+    type: string;
+    category: string;
+    end_date: string;
+    start_date: string;
 }
 
 const props = defineProps<{ events: Event[] }>();
@@ -23,6 +33,12 @@ const filteredEvents = computed(() =>
         )
         : props.events
 );
+
+const viewEvent = (eventId: number) => {
+    router.get(`/events/${eventId}`);
+};
+
+const hoveredEvent = ref<number | null>(null);
 </script>
 
 <template>
@@ -45,7 +61,10 @@ const filteredEvents = computed(() =>
 
         <!-- Grid de Eventos -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            <div v-for="event in filteredEvents" :key="event.id" class="bg-white p-4 rounded-lg shadow-md border">
+            <div v-for="event in filteredEvents" :key="event.id"
+                class="p-4 bg-white shadow rounded cursor-pointer transition-all duration-300"
+                :class="{ 'bg-gray-200 scale-105 shadow-lg': hoveredEvent === event.id }" @click="viewEvent(event.id)"
+                @mouseover="hoveredEvent = event.id" @mouseleave="hoveredEvent = null">
                 <h2 class="text-lg font-semibold">{{ event.name }}</h2>
                 <p class="text-gray-600">{{ event.startdate }}</p>
                 <p class="text-gray-500 text-sm">{{ event.location }}</p>
@@ -56,12 +75,19 @@ const filteredEvents = computed(() =>
                 }">
                     {{ event.status }}
                 </p>
+                <button>
+                    <Link :href="`/inscricao/${event.id}`"
+                        class="bg-green-500 text-white px-4 py-2 rounded mt-2 inline-block" @click.stop>
+                    Inscrever-se
+                    </Link>
 
+
+                </button>
 
             </div>
         </div>
 
-        <!-- Paginação (Placeholder) -->
+        <!-- Paginação </template>(Placeholder) -->
         <div class="flex justify-center mt-6 space-x-2">
             <button class="text-red-500">&lt;</button>
             <span>1</span>
@@ -72,4 +98,8 @@ const filteredEvents = computed(() =>
             <button class="text-red-500">&gt;</button>
         </div>
     </div>
+
+
+
+
 </template>

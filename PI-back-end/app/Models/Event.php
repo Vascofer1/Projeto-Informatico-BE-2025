@@ -3,6 +3,7 @@
 namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Participant;
 
 class Event extends Model
 {
@@ -15,9 +16,17 @@ class Event extends Model
         'start_date',
         'end_date',
         'location',
+        'limit_participants',
+        'category',
+        'type',
+        
+
+        'image',
+
     ];
 
-
-
-
+    public function participants()
+    {
+        return $this->hasMany(Participant::class);
+    }
 }

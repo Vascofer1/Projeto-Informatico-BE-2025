@@ -12,7 +12,7 @@ const form = ref({
   end_date: "",
   end_time: "",
   image: null as File | null,
-  limit: "",
+  limit_participants: "",
   description: "",
 });
 
@@ -73,7 +73,7 @@ const submit = () => {
       <input type="file" @change="(e: any) => (form.image = e.target.files[0])" class="w-full p-2 border rounded bg-white" />
 
       <h3 class="mt-4">Limite de Participantes</h3>
-      <input v-model="form.limit" type="number" placeholder="Número" class="w-full p-2 border rounded" />
+      <input v-model="form.limit_participants" type="number" placeholder="Número" class="w-full p-2 border rounded" />
 
       <h3 class="mt-4">Descrição</h3>
       <textarea v-model="form.description" class="w-full p-2 border rounded"></textarea>
