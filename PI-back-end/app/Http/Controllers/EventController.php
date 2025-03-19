@@ -45,7 +45,7 @@ class EventController extends Controller
             'end_date' => 'required|date',
             'end_time' => 'required',
             'image' => 'nullable|image|max:2048',
-            'limit' => 'nullable|integer',
+            'limit_participants' => 'nullable|integer',
             'description' => 'nullable|string',
         ]);
 
@@ -59,14 +59,22 @@ class EventController extends Controller
         return redirect()->route('events.index')->with('success', 'Evento criado com sucesso!');
     }
 
+    public function showRegistrationPage($id)
+    {
+        $event = Event::findOrFail($id);
+        return Inertia::render('EventRegistration', ['event' => $event]);
+    }
 
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Event $event)
     {
-        //
+        
+        return Inertia::render('Events/Show', [
+            'event' => $event
+        ]);
     }
 
     /**
