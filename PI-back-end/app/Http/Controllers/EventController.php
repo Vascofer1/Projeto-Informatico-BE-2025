@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use App\Models\Event;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class EventController extends Controller
 {
@@ -11,7 +12,22 @@ class EventController extends Controller
      */
     public function index()
     {
-        return Event::all();
+        $events = Event::all()->map(function ($event) {
+            return [
+                'id' => $event->id,
+                'name' => $event->name,
+                'location' => $event->location,
+                'startdate' => $event->start_date,
+                'status' => $event->status,
+            ];
+        });
+    
+        return Inertia::render('Events/Index', ['events' => $events]);
+    }
+
+    public function create()
+    {
+        return Inertia::render('Events/Create');
     }
 
     /**
@@ -19,8 +35,31 @@ class EventController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'type' => 'required|string',
+            'category' => 'required|string',
+            'location' => 'required|string',
+            'start_date' => 'required|date',
+            'start_time' => 'required',
+            'end_date' => 'required|date',
+            'end_time' => 'required',
+            'image' => 'nullable|image|max:2048',
+            'limit' => 'nullable|integer',
+            'description' => 'nullable|string',
+        ]);
+
+        // Se houver imagem, processa o upload
+        if ($request->hasFile('image')) {
+            $validated['image'] = $request->file('image')->store('events', 'public');
+        }
+
+        Event::create($validated);
+
+        return redirect()->route('events.index')->with('success', 'Evento criado com sucesso!');
     }
+
+
 
     /**
      * Display the specified resource.

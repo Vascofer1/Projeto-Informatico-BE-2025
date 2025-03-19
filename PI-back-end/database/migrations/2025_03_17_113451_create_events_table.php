@@ -18,6 +18,10 @@ return new class extends Migration
             $table->dateTime('start_date');
             $table->dateTime('end_date');
             $table->string('location')->nullable();
+            $table->integer('limit_participants')->nullable();
+            $table->string('category')->nullable();
+            $table->string('type')->nullable();
+            $table->string('status')->default('por decorrer');
             $table->timestamps();
         });
     }
