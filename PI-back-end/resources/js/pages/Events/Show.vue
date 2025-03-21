@@ -2,6 +2,8 @@
 import { defineProps } from "vue";
 import { router } from "@inertiajs/vue3";
 import { Link } from "@inertiajs/vue3";
+import AppLayout from '@/layouts/AppLayout.vue';
+import type { BreadcrumbItem } from '@/types';
 
 interface Event {
     id: number;
@@ -17,11 +19,17 @@ interface Event {
 }
 
 const props = defineProps<{ event: Event }>();
-
+const breadcrumbs: BreadcrumbItem[] = [
+    {
+        title: `Events / ${props.event.name}`,
+        href: `/events/${props.event.id}`,
+    },
+];
 
 </script>
 
 <template>
+    <AppLayout :breadcrumbs="breadcrumbs">
     <div class="p-6 bg-gray-100 min-h-screen">
         <h1 class="text-3xl font-bold mb-4">{{ event.name }}</h1>
         <p><strong>Tipo:</strong> {{ event.type }}</p>
@@ -31,12 +39,13 @@ const props = defineProps<{ event: Event }>();
             event.end_time }}</p>
         <p><strong>Descrição:</strong> {{ event.description }}</p>
 
+        <br>
         <button>
             <Link :href="`/event/${event.id}/participants`" class="bg-blue-500 text-white px-4 py-2 rounded">
             Ver Participantes
             </Link>
         </button>
-
+        <br>
 
         <div class="flex justify-start mt-4">
             <button @click="router.get('/events')" class="px-4 py-2 bg-gray-500 text-white rounded">
@@ -44,7 +53,7 @@ const props = defineProps<{ event: Event }>();
             </button>
         </div>
     </div>
-
+    </AppLayout>
 
 
 </template>

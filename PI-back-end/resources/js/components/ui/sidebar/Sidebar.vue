@@ -70,7 +70,7 @@ const { isMobile, state, openMobile, setOpenMobile } = useSidebar();
                         ? 'group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4))]'
                         : 'group-data-[collapsible=icon]:w-[--sidebar-width-icon]',
                 )
-            "
+            "gtrgt
         />
         <div
             :class="
