@@ -5,9 +5,13 @@ use Inertia\Inertia;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\ParticipantController;
 
-Route::get('/', function () {
+/*Route::get('/', function () {
     return Inertia::render('Welcome');
-})->name('home');
+})->name('home');*/
+
+Route::get('/', function () {
+    return Inertia::render('auth/Login');
+})->middleware(['guest'])->name('home');
 
 Route::get('dashboard', function () {
     return Inertia::render('Dashboard');
