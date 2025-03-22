@@ -78,7 +78,7 @@ const hoveredEvent = ref<number | null>(null);
                 <button>
                     <Link :href="`/inscricao/${event.id}`"
                         class="bg-green-500 text-white px-4 py-2 rounded mt-2 inline-block" @click.stop>
-                    Inscrever-se
+                    Landing Page
                     </Link>
 
 
