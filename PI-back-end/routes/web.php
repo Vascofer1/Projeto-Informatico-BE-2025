@@ -13,9 +13,9 @@ Route::get('/', function () {
     return Inertia::render('auth/Login');
 })->middleware(['guest'])->name('home');
 
-Route::get('dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('dashboard', [EventController::class, 'filter'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
 
 Route::get('/events', [EventController::class, 'index'])->name('events.index');
 Route::get('/events/create', [EventController::class, 'create'])->name('events.create');
