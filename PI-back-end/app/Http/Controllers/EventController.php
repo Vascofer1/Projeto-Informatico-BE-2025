@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\Event;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -21,9 +22,32 @@ class EventController extends Controller
                 'status' => $event->status,
             ];
         });
-    
+
         return Inertia::render('Events/Index', ['events' => $events]);
     }
+
+
+    public function filter()
+    {
+        $today = now()->toDateString(); // Obtém a data de hoje no formato 'YYYY-MM-DD'
+        $pastWeek = now()->subDays(7)->toDateString(); // Últimos 7 dias
+        $nextWeek = now()->addDays(7)->toDateString(); // Próximos 7 dias
+    
+        $recentEvents = Event::whereBetween('end_date', [$pastWeek, $today])->get();
+    
+        $ongoingEvents = Event::where('start_date', '<=', $today)
+                              ->where('end_date', '>=', $today)
+                              ->get();
+    
+        $upcomingEvents = Event::whereBetween('start_date', [$today, $nextWeek])->get();
+    
+        return Inertia::render('Dashboard', [
+            'recentEvents' => $recentEvents ?? [],
+            'ongoingEvents' => $ongoingEvents ?? [],
+            'upcomingEvents' => $upcomingEvents ?? []
+        ]);
+    }
+
 
     public function create()
     {
@@ -45,7 +69,7 @@ class EventController extends Controller
             'end_date' => 'required|date',
             'end_time' => 'required',
             'image' => 'nullable|image|max:2048',
-            'limit_participants' => 'nullable|integer',
+            'limit_participants' => 'nullable|integer|min:1',
             'description' => 'nullable|string',
         ]);
 
@@ -71,7 +95,8 @@ class EventController extends Controller
      */
     public function show(Event $event)
     {
-        
+        $event->loadCount('participants'); // Adiciona participants_count ao evento
+
         return Inertia::render('Events/Show', [
             'event' => $event
         ]);
