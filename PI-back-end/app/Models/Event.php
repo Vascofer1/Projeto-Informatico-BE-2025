@@ -19,8 +19,8 @@ class Event extends Model
         'limit_participants',
         'category',
         'type',
-        
-
+        "start_time",
+        "end_time",
         'image',
 
     ];
