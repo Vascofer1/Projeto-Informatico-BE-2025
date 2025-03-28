@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Event;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Auth;
+
 
 class EventController extends Controller
 {
@@ -28,25 +30,59 @@ class EventController extends Controller
 
 
     public function filter()
-    {
-        $today = now()->toDateString(); // Obtém a data de hoje no formato 'YYYY-MM-DD'
-        $pastWeek = now()->subDays(7)->toDateString(); // Últimos 7 dias
-        $nextWeek = now()->addDays(7)->toDateString(); // Próximos 7 dias
-    
-        $recentEvents = Event::whereBetween('end_date', [$pastWeek, $today])->get();
-    
-        $ongoingEvents = Event::where('start_date', '<=', $today)
-                              ->where('end_date', '>=', $today)
-                              ->get();
-    
-        $upcomingEvents = Event::whereBetween('start_date', [$today, $nextWeek])->get();
-    
-        return Inertia::render('Dashboard', [
-            'recentEvents' => $recentEvents ?? [],
-            'ongoingEvents' => $ongoingEvents ?? [],
-            'upcomingEvents' => $upcomingEvents ?? []
-        ]);
-    }
+{
+    $this->updateEventStatus();
+
+    $now = now(); // Obtém a data e hora atuais (YYYY-MM-DD HH:MM:SS)
+    $today = $now->toDateString(); // Apenas a data (YYYY-MM-DD)
+    $pastWeek = $now->copy()->subDays(7)->toDateString(); // Últimos 7 dias
+    $nextWeek = $now->copy()->addDays(7)->toDateString(); // Próximos 7 dias
+
+    // Eventos Recentes: Terminaram nos últimos 7 dias (considerando data e hora)
+    $recentEvents = Event::where(function ($query) use ($pastWeek, $now) {
+        $query->where('end_date', '>=', $pastWeek)
+              ->whereRaw("CONCAT(end_date, ' ', end_time) < ?", [$now]); // Só eventos que já terminaram
+    })->get();
+
+    // Eventos a Decorrer: Já começaram, mas ainda não terminaram
+    $ongoingEvents = Event::where(function ($query) use ($now) {
+        $query->whereRaw("CONCAT(start_date, ' ', start_time) <= ?", [$now])
+              ->whereRaw("CONCAT(end_date, ' ', end_time) >= ?", [$now]);
+    })->get();
+
+    // Eventos Futuros: Ainda não começaram, mas vão começar nos próximos 7 dias
+    $upcomingEvents = Event::where(function ($query) use ($today, $nextWeek, $now) {
+        $query->where('start_date', '>=', $today)
+              ->where('start_date', '<=', $nextWeek)
+              ->whereRaw("CONCAT(start_date, ' ', start_time) > ?", [$now]); // Só eventos que ainda não começaram
+    })->get();
+
+    return Inertia::render('Dashboard', [
+        'user' => Auth::user(),
+        'recentEvents' => $recentEvents ?? [],
+        'ongoingEvents' => $ongoingEvents ?? [],
+        'upcomingEvents' => $upcomingEvents ?? []
+    ]);
+}
+
+
+protected function updateEventStatus()
+{
+    $now = now(); // Data e hora atuais
+
+    Event::all()->each(function ($event) use ($now) {
+        // Verifica o status do evento com base nas datas e horários
+        if ($event->end_date < $now->toDateString() || 
+            ($event->end_date == $now->toDateString() && $event->end_time < $now->toTimeString())) {
+            $event->status = 'Finished'; // Evento terminou
+        } elseif ($event->start_date <= $now->toDateString() && $event->end_date >= $now->toDateString()) {
+            $event->status = 'On going'; // Evento está em andamento
+        } elseif ($event->start_date > $now->toDateString()) {
+            $event->status = 'Upcoming'; // Evento no futuro
+        }
+        $event->save(); // Salva as alterações
+    });
+}
 
 
     public function create()
@@ -58,30 +94,46 @@ class EventController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'type' => 'required|string',
-            'category' => 'required|string',
-            'location' => 'required|string',
-            'start_date' => 'required|date',
-            'start_time' => 'required',
-            'end_date' => 'required|date',
-            'end_time' => 'required',
-            'image' => 'nullable|image|max:2048',
-            'limit_participants' => 'nullable|integer|min:1',
-            'description' => 'nullable|string',
-        ]);
+{
+    $now = now(); // Obtém a data e hora atuais
 
-        // Se houver imagem, processa o upload
-        if ($request->hasFile('image')) {
-            $validated['image'] = $request->file('image')->store('events', 'public');
-        }
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'type' => 'required|string',
+        'category' => 'required|string',
+        'location' => 'required|string',
+        'start_date' => 'required|date|after_or_equal:' . $now->toDateString(),
+        'start_time' => 'required|date_format:H:i',
+        'end_date' => 'required|date|after_or_equal:start_date',
+        'end_time' => 'required|date_format:H:i',
+        'image' => 'nullable|image|max:2048',
+        'limit_participants' => 'nullable|integer|min:1',
+        'description' => 'nullable|string',
+    ]);
 
-        Event::create($validated);
+    // Criar um objeto de data/hora para comparação mais precisa
+    $startDateTime = \Carbon\Carbon::parse("{$request->start_date} {$request->start_time}");
+    $endDateTime = \Carbon\Carbon::parse("{$request->end_date} {$request->end_time}");
 
-        return redirect()->route('events.index')->with('success', 'Evento criado com sucesso!');
+    // Se a data/hora de início for no passado
+    if ($startDateTime->lt($now)) {
+        return back()->withErrors(['start_date' => 'Start date and time must be in the future.'])->withInput();
     }
+
+    // Se a data/hora de término for antes da data/hora de início
+    if ($endDateTime->lte($startDateTime)) {
+        return back()->withErrors(['end_time' => 'The end date field must be a date after or equal to start date.'])->withInput();
+    }
+
+    if ($request->hasFile('image')) {
+        $path = $request->file('image')->store('event_images', 'public'); // Salva na pasta storage/app/public/event_images
+        $validated['image'] = $path;
+    }
+
+    Event::create($validated);
+
+    return redirect()->route('events.index')->with('success', 'Evento criado com sucesso!');
+}
 
     public function showRegistrationPage($id)
     {

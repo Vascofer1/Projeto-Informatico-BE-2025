@@ -30,30 +30,32 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 <template>
     <AppLayout :breadcrumbs="breadcrumbs">
-    <div class="p-6 bg-gray-100 min-h-screen">
-        <h1 class="text-3xl font-bold mb-4">{{ event.name }}</h1>
-        <p><strong>Tipo:</strong> {{ event.type }}</p>
-        <p><strong>Categoria:</strong> {{ event.category }}</p>
-        <p><strong>Localização:</strong> {{ event.location }}</p>
-        <p><strong>Data e Hora:</strong> {{ event.start_date }} às {{ event.start_time }} - {{ event.end_date }} às {{
-            event.end_time }}</p>
-        <p><strong>Descrição:</strong> {{ event.description }}</p>
+        <div class="p-6 bg-gray-100 min-h-screen">
+            <div class="flex flex-col md:flex-row items-start space-x-6">
+                <!-- Imagem ao lado do conteúdo -->
+                <img v-if="event.image" :src="`/storage/${event.image}`" alt="Event Image"
+                    class="w-64 h-64 object-cover rounded-lg shadow-lg">
 
-        <br>
-        <button>
-            <Link :href="`/event/${event.id}/participants`" class="bg-blue-500 text-white px-4 py-2 rounded">
-            Show {{ event.participants_count }} Participants
-            </Link>
-        </button>
-        <br>
+                <!-- Conteúdo do evento -->
+                <div>
+                    <h1 class="text-3xl font-bold mb-4">{{ event.name }}</h1>
+                    <p><strong>Type:</strong> {{ event.type }}</p>
+                    <p><strong>Category:</strong> {{ event.category }}</p>
+                    <p><strong>Location:</strong> {{ event.location }}</p>
+                    <p><strong>Date:</strong> {{ event.start_date }} às {{ event.start_time }} - {{ event.end_date }} às {{ event.end_time }}</p>
+                    <p><strong>Description:</strong> {{ event.description ? event.description : 'No description available.' }}</p>
 
-        <div class="flex justify-start mt-4">
-            <button @click="router.get('/events')" class="px-4 py-2 bg-gray-500 text-white rounded">
-                Voltar
-            </button>
+                    <div class="mt-6 flex space-x-4">
+                        <Link :href="`/event/${event.id}/participants`" class="bg-blue-500 text-white px-6 py-3 rounded-lg text-lg shadow-md hover:bg-blue-600 transition">
+                            Show {{ event.participants_count }} Participants
+                        </Link>
+
+                        <button @click="router.get('/events')" class="px-6 py-3 bg-gray-500 text-white rounded-lg text-lg shadow-md hover:bg-gray-600 transition">
+                            Voltar
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
     </AppLayout>
-
-
 </template>

@@ -2,7 +2,7 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/vue3';
-import PlaceholderPattern from '../components/PlaceholderPattern.vue';
+import type { User } from '@/types';
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
@@ -12,10 +12,12 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 const props = defineProps({
+  user: Object as () => User,
   recentEvents: Array,
   ongoingEvents: Array,
   upcomingEvents: Array,
 });
+
 
 console.log("Recent Events:", props.recentEvents);
 console.log("Ongoing Events:", props.ongoingEvents);
@@ -27,7 +29,7 @@ console.log("Upcoming Events:", props.upcomingEvents);
 
   <AppLayout :breadcrumbs="breadcrumbs">
     <div class="p-6 bg-gray-100 min-h-screen">
-      <h1 class="text-3xl font-bold mb-6 text-center">Welcome Back, Admin</h1>
+      <h1 class="text-3xl font-bold mb-6 text-center">Welcome Back, {{ props.user.name }}</h1>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <!-- Recent Events -->
@@ -37,7 +39,7 @@ console.log("Upcoming Events:", props.upcomingEvents);
           <ul v-else class="divide-y divide-gray-300">
             <li v-for="event in props.recentEvents" :key="event.id" class="py-2">
               <span class="block font-medium">{{ event.name }}</span>
-              <span class="text-sm text-gray-600">{{ event.start_date }} {{ event.start_time }}</span>
+              <span class="text-sm text-gray-600">{{ event.start_date }} {{ event.start_time }} - {{ event.end_date }} {{ event.end_time }}</span>
             </li>
           </ul>
         </div>
@@ -49,7 +51,7 @@ console.log("Upcoming Events:", props.upcomingEvents);
           <ul v-else class="divide-y divide-gray-300">
             <li v-for="event in props.ongoingEvents" :key="event.id" class="py-2">
               <span class="block font-medium">{{ event.name }}</span>
-              <span class="text-sm text-gray-600">{{ event.start_date }} {{ event.start_time }}</span>
+              <span class="text-sm text-gray-600">{{ event.start_date }} {{ event.start_time }} - {{ event.end_date }} {{ event.end_time }}</span>
             </li>
           </ul>
         </div>
@@ -61,7 +63,7 @@ console.log("Upcoming Events:", props.upcomingEvents);
           <ul v-else class="divide-y divide-gray-300">
             <li v-for="event in props.upcomingEvents" :key="event.id" class="py-2">
               <span class="block font-medium">{{ event.name }}</span>
-              <span class="text-sm text-gray-600">{{ event.start_date }} {{ event.start_time }}</span>
+              <span class="text-sm text-gray-600">{{ event.start_date }} {{ event.start_time }} - {{ event.end_date }} {{ event.end_time }}</span>
             </li>
           </ul>
         </div>

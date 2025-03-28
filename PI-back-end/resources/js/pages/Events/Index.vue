@@ -56,12 +56,12 @@ const breadcrumbs: BreadcrumbItem[] = [
             <div class="flex justify-between items-center mb-6">
                 <button @click="router.get('/events/create')"
                     class="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition">
-                    Criar Novo Evento
+                    Create New Event
                 </button>
             </div>
 
             <div class="mb-6">
-                <input v-model="searchQuery" type="text" placeholder="Pesquisa eventos"
+                <input v-model="searchQuery" type="text" placeholder="Search for an event"
                     class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400" />
             </div>
 
@@ -74,9 +74,9 @@ const breadcrumbs: BreadcrumbItem[] = [
                     <p class="text-gray-600">{{ event.startdate }}</p>
                     <p class="text-gray-500 text-sm">{{ event.location }}</p>
                     <p :class="{
-                        'text-green-500': event.status === 'por decorrer',
-                        'text-red-500': event.status === 'finalizado',
-                        'text-blue-500': event.status === 'a decorrer'
+                        'text-green-500': event.status === 'Upcoming',
+                        'text-red-500': event.status === 'Finished',
+                        'text-blue-500': event.status === 'On going'
                     }">
                         {{ event.status }}
                     </p>

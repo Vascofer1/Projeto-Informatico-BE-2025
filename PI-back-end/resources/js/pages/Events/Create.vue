@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { router } from "@inertiajs/vue3";
+import { router, usePage } from "@inertiajs/vue3";
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 
@@ -13,21 +13,43 @@ const form = ref({
   start_time: "",
   end_date: "",
   end_time: "",
-  image: null as File | null,
+  image: null,
   limit_participants: "",
   description: "",
 });
 
+const errors = ref({}); // Para guardar os erros
+
 const submit = () => {
   const formData = new FormData();
+
+  if (form.value.location === "On-site" && form.value.venue) {
+    form.value.location = "(On-site) " + form.value.venue;
+  }
+
+  if (form.value.type === "Other" && form.value.newType) {
+    form.value.type = form.value.newType;
+  }
+
+  if (form.value.category === "Other" && form.value.newCategory) {
+    form.value.category = form.value.newCategory;
+  }
+
   Object.keys(form.value).forEach((key) => {
     if (form.value[key as keyof typeof form.value]) {
       formData.append(key, form.value[key as keyof typeof form.value] as string);
     }
   });
 
-  router.post("/events", formData);
+  router.post("/events", formData, {
+    onError: (err) => {
+      errors.value = err; // Guardar os erros para mostrar no frontend
+    }
+  });
 };
+
+const page = usePage();
+errors.value = page.props.errors || {}; // Pega erros se já existirem
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
@@ -90,21 +112,27 @@ const breadcrumbs: BreadcrumbItem[] = [
         <input v-if="form.location === 'On-site'" v-model="form.venue" placeholder="Event venue"
           class="w-full p-2 mt-2 border rounded" />
 
-        <h3 class="mt-5">Start Date and Time</h3>
+          <h3 class="mt-5">Start Date and Time</h3>
         <div class="flex space-x-2">
           <input type="date" v-model="form.start_date" class="w-1/2 p-2 border rounded" />
           <input type="time" v-model="form.start_time" class="w-1/2 p-2 border rounded" />
         </div>
+        <p v-if="errors.start_date" class="text-red-500 text-lg">ERROR: {{ errors.start_date }}</p>
+        <p v-if="errors.start_time" class="text-red-500 text-lg">ERROR: {{ errors.start_time }}</p>
 
         <h3 class="mt-4">End Date and Time</h3>
         <div class="flex space-x-2">
           <input type="date" v-model="form.end_date" class="w-1/2 p-2 border rounded" />
           <input type="time" v-model="form.end_time" class="w-1/2 p-2 border rounded" />
         </div>
+        <p v-if="errors.end_date" class="text-red-500 text-lg">ERROR: {{ errors.end_date }}</p>
+        <p v-if="errors.end_time" class="text-red-500 text-lg">ERROR: {{ errors.end_time }}</p>
 
         <h3 class="mt-5">Event Image</h3>
-        <input type="file" @change="(e: any) => (form.image = e.target.files[0])"
+        <input type="file" @change="(e: any) => (form.image = e.target.files[0])" accept="image/png, image/jpeg, image/jpg"
           class="w-full p-2 border rounded bg-white" />
+        <p class="text-gray-600 text-sm">Accepted formats: PNG, JPG, JPEG</p>
+
 
         <h3 class="mt-5">Participant Limit</h3>
         <input v-model="form.limit_participants" type="number" placeholder="Quantity"
