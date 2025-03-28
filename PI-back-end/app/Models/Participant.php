@@ -13,6 +13,7 @@ class Participant extends Model
         'email',
         'phone',
         'event_id',
+        'qrcode'
     ];
 
     public function event()
