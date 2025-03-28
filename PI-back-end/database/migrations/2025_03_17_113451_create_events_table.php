@@ -17,8 +17,8 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->date('start_date');
             $table->date('end_date');
-            $table->time('start_time')->nullable();
-            $table->time('end_time')->nullable();
+            $table->time('start_time');
+            $table->time('end_time');
             $table->string('location')->nullable();
             $table->integer('limit_participants')->nullable();
             $table->string('category')->nullable();
