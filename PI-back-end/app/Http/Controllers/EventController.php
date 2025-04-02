@@ -6,6 +6,8 @@ use App\Models\Event;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 
 class EventController extends Controller
@@ -13,20 +15,19 @@ class EventController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        $events = Event::all()->map(function ($event) {
-            return [
-                'id' => $event->id,
-                'name' => $event->name,
-                'location' => $event->location,
-                'startdate' => $event->start_date,
-                'status' => $event->status,
-            ];
-        });
+    public function index(Request $request)
+{
+    $query = Event::query();
 
-        return Inertia::render('Events/Index', ['events' => $events]);
+    if ($request->has('search')) {
+        $search = $request->input('search');
+        $query->whereRaw('LOWER(name) LIKE ?', ["%".strtolower($search)."%"]);
     }
+
+    $events = $query->paginate(12)->withQueryString();
+
+    return Inertia::render('Events/Index', ['events' => $events]);
+}
 
 
     public function filter()
@@ -103,9 +104,9 @@ protected function updateEventStatus()
         'category' => 'required|string',
         'location' => 'required|string',
         'start_date' => 'required|date|after_or_equal:' . $now->toDateString(),
-        'start_time' => 'required|date_format:H:i',
+        'start_time' => 'required|date_format:H:i:s',
         'end_date' => 'required|date|after_or_equal:start_date',
-        'end_time' => 'required|date_format:H:i',
+        'end_time' => 'required|date_format:H:i:s',
         'image' => 'nullable|image|max:2048',
         'limit_participants' => 'nullable|integer|min:1',
         'description' => 'nullable|string',
@@ -135,6 +136,7 @@ protected function updateEventStatus()
     return redirect()->route('events.index')->with('success', 'Evento criado com sucesso!');
 }
 
+
     public function showRegistrationPage($id)
     {
         $event = Event::findOrFail($id);
@@ -154,13 +156,76 @@ protected function updateEventStatus()
         ]);
     }
 
+
+    public function edit(Event $event)
+{
+    if($event->status == 'Finished') {
+        return redirect()->route('events.show', $event->id)->withErrors(['event' => 'Cannot edit a finished event.']);
+    }
+
+    if($event->status == 'On going') {
+        return redirect()->route('events.show', $event->id)->withErrors(['event' => 'Cannot edit an ongoing event.']);
+    }
+
+    return Inertia::render('Events/Edit', ['event' => $event]);
+}
+
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
-    {
-        //
+    public function update(Request $request, $id)
+{
+    $event = Event::findOrFail($id);
+    $now = now();
+
+    $validated = $request->validate([
+        'name' => 'nullable|string|max:255',
+        'type' => 'nullable|string',
+        'category' => 'nullable|string',
+        'location' => 'nullable|string',
+        'start_date' => 'nullable|date|after_or_equal:' . $now->toDateString(),
+        'start_time' => 'nullable|date_format:H:i',
+        'end_date' => 'nullable|date|after_or_equal:start_date',
+        'end_time' => 'nullable|date_format:H:i',
+        'limit_participants' => 'nullable|integer|min:1',
+        'description' => 'nullable|string',
+        'image' => 'nullable|image|max:2048',
+    ]);
+
+    $startDateTime = \Carbon\Carbon::parse("{$request->start_date} {$request->start_time}");
+    $endDateTime = \Carbon\Carbon::parse("{$request->end_date} {$request->end_time}");
+
+    if ($startDateTime->lt($now)) {
+        return back()->withErrors(['start_date' => 'Start date and time must be in the future.'])->withInput();
     }
+
+    if ($endDateTime->lte($startDateTime)) {
+        return back()->withErrors(['end_time' => 'The end date field must be a date after or equal to start date.'])->withInput();
+    }
+
+    // Atualizar imagem se for enviada
+    if ($request->hasFile('image')) {
+        // Guarda a imagem e obtém o caminho
+        $path = $request->file('image')->store('event_images', 'public');
+        $validated['image'] = $path;
+    }
+
+    foreach ($validated as $key => $value) {
+        if (!is_null($value)) {
+            $event->$key = $value;
+        }
+    }
+
+    // Debugging: Ver os dados antes de salvar
+    // dd($event);
+
+    $event->save();
+
+    return Inertia::render('Events/Show', [
+        'event' => $event,
+        'message' => 'Evento atualizado com sucesso!',
+    ]);
+}
 
     /**
      * Remove the specified resource from storage.

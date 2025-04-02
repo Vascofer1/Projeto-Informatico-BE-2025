@@ -1,60 +1,102 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import { router, usePage } from "@inertiajs/vue3";
+import { ref, onMounted } from 'vue';
+import { useForm, usePage, router } from '@inertiajs/vue3';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 
-const form = ref({
-  name: "",
-  type: "",
-  category: "",
-  location: "",
-  start_date: "",
-  start_time: "",
-  end_date: "",
-  end_time: "",
+const errors = ref({});
+
+// Dados do evento carregados inicialmente
+const event = usePage().props.event;  // Supondo que os dados do evento já estão disponíveis
+
+// Usando o hook useForm para lidar com o formulário
+const form = useForm({
+  id: event.id,
+  name: event.name,
+  type: event.type !== "Lecture" && event.type !== "Workshop" && event.type !== "Conference" ? "Other" : event.type,
+  newType: event.type !== "Lecture" && event.type !== "Workshop" && event.type !== "Conference" ? event.type : "",
+
+  category: event.category !== "Technology" && event.category !== "Health" && event.category !== "Sports" ? "Other" : event.category,
+  newCategory: event.category !== "Technology" && event.category !== "Health" && event.category !== "Sports" ? event.category : "",
+
+  location: event.location !== "Online" ? "On-site" : event.location,
+  newLocation: event.location !== "Online" && event.location !== "On-site" ? event.location : "",
+
+  start_date: event.start_date,
+  start_time: event.start_time,
+  end_date: event.end_date,
+  end_time: event.end_time,
+  limit_participants: event.limit_participants,
+  description: event.description,
   image: null,
-  limit_participants: "",
-  description: "",
 });
 
-const errors = ref({}); // Para guardar os erros
 
+// Função para lidar com a alteração do campo de imagem
+const handleImageChange = (e: any) => {
+  form.image = e.target.files[0];
+};
+
+const formatTime = (time: string) => {
+  return time ? time.slice(0, 5) : ""; // Remove os segundos (H:i:s -> H:i)
+};
+
+onMounted(() => {
+  form.start_time = formatTime(event.start_time);
+  form.end_time = formatTime(event.end_time);
+});
+
+// Garante que o tempo é enviado no formato correto
+const formatTimeForBackend = (time: string) => {
+  return time ? `${time}:00` : ""; // Adiciona segundos (H:i -> H:i:s)
+};
+
+// Atualiza os valores antes de enviar o formulário
 const submit = () => {
   const formData = new FormData();
+  
+  // Adiciona `_method: PUT` para Laravel entender como um update
+  formData.append('_method', 'PUT');
 
-  if (form.value.location === "On-site" && form.value.venue) {
-    form.value.location = form.value.venue;
+  // Atualiza os valores corretamente antes de enviar
+  if (form.type === "Other" && form.newType) {
+    form.type = form.newType;
   }
 
-  if (form.value.type === "Other" && form.value.newType) {
-    form.value.type = form.value.newType;
+  if (form.category === "Other" && form.newCategory) {
+    form.category = form.newCategory;
   }
 
-  if (form.value.category === "Other" && form.value.newCategory) {
-    form.value.category = form.value.newCategory;
+  if (form.location === "On-site" && form.newLocation) {
+    form.location = form.newLocation;
   }
 
-  Object.keys(form.value).forEach((key) => {
-    if (form.value[key as keyof typeof form.value]) {
-      formData.append(key, form.value[key as keyof typeof form.value] as string);
+  Object.keys(form).forEach((key) => {
+    if (form[key] !== null) {
+      formData.append(key, form[key]);
     }
   });
 
-  router.post("/events", formData, {
+  if (form.image) {
+    formData.append('image', form.image);
+  }
+
+  router.post(`/events/${form.id}`, formData, {
+    forceFormData: true, // Obrigatório para enviar ficheiros corretamente
     onError: (err) => {
-      errors.value = err; // Guardar os erros para mostrar no frontend
+      console.log("Erro na atualização:", err);
+      errors.value = err;
+    },
+    onSuccess: () => {
+      console.log("Evento atualizado com sucesso!");
     }
   });
 };
 
-const page = usePage();
-errors.value = page.props.errors || {}; // Pega erros se já existirem
-
 const breadcrumbs: BreadcrumbItem[] = [
   {
-    title: `Events / New Event`,
-    href: `/events/create`,
+    title: `Events / Edit Event`,
+    href: `/events/edit`,
   },
 ];
 </script>
@@ -63,7 +105,7 @@ const breadcrumbs: BreadcrumbItem[] = [
   <AppLayout :breadcrumbs="breadcrumbs">
     <div class="p-10 bg-gray-100 min-h-screen flex justify-center">
       <div class="bg-white p-10 rounded-lg shadow-xl w-full max-w-5xl">
-        <h2 class="text-2xl font-bold mb-6 text-center">NEW EVENT</h2>
+        <h2 class="text-2xl font-bold mb-6 text-center">EDIT EVENT</h2>
         <h3 class="mt-2 font-bold">Name</h3>
         <input v-model="form.name" placeholder="Event Name" class="w-full p-2 mb-4 border rounded" />
 
@@ -105,18 +147,14 @@ const breadcrumbs: BreadcrumbItem[] = [
 
         <h3 class="mt-5 font-bold">Location</h3>
         <div class="flex space-x-2">
-  <div class="relative w-1/2">
-    <span v-if="!form.location" class="absolute left-3 top-2 text-gray-400 pointer-events-none">
-      Select Event Location
-    </span>
-    <select v-model="form.location" class="w-full p-2 border rounded">
-      <option value="" disabled hidden></option>
-      <option value="Online">Online</option>
-      <option value="On-site">On-site</option>
-    </select>
-  </div>
-          <input v-if="form.location === 'On-site'" v-model="form.venue" placeholder="Event venue"
-            class="w-full p-2 border rounded" />
+          <div class="relative w-1/2">
+            <select v-model="form.location" class="w-full p-2 border rounded">
+              <option value="Online">Online</option>
+              <option value="On-site">On-site</option>
+            </select>
+          </div>
+          <input v-if="form.location === 'On-site'" v-model="form.newLocation" placeholder="Enter location"
+            class="w-1/2 p-2 border rounded" />
         </div>
 
         <h3 class="mt-5 font-bold">Start Date and Time</h3>
@@ -150,7 +188,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 
         <div class="flex justify-between mt-4">
           <button @click="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-            Confirm
+            Confirm Changes
           </button>
           <button @click="router.get('/events')" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">
             Cancel
