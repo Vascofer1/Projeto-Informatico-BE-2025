@@ -4,6 +4,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Participant;
+use App\Models\Event_questions;
 
 class Event extends Model
 {
@@ -28,5 +29,10 @@ class Event extends Model
     public function participants()
     {
         return $this->hasMany(Participant::class);
+    }
+
+    public function event_questions()
+    {
+        return $this->hasMany(Event_questions::class);
     }
 }
