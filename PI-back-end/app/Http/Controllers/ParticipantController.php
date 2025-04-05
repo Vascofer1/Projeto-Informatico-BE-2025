@@ -22,6 +22,7 @@ class ParticipantController extends Controller
     $participants = Participant::query()
         ->where('event_id', $id)
         ->when($request->status === 'por confirmar', fn ($q) => $q->where('status', 'por confirmar'))
+        ->when($request->status === 'confirmado', fn ($q) => $q->where('status', 'confirmado'))
         ->when($request->search, fn ($q, $search) => $q->where('name', 'like', "%{$search}%"))
         ->paginate(7)
         ->withQueryString();
@@ -42,16 +43,24 @@ class ParticipantController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => [
-                'required',
-                'email',
-                'max:255',
-                Rule::unique('participants')->where(function ($query) use ($eventId) {
-                    return $query->where('event_id', $eventId);
-                }),
+            'required',
+            'email',
+            'max:255',
+            Rule::unique('participants')->where(function ($query) use ($eventId) {
+                return $query->where('event_id', $eventId);
+            }),
             ],
-            'phone' => 'required|string|max:20',
+            'phone' => [
+            'required',
+            'string',
+            'max:9',
+            Rule::unique('participants')->where(function ($query) use ($eventId) {
+                return $query->where('event_id', $eventId);
+            }),
+            ],
         ], [
             'email.unique' => 'Já existe uma inscrição com este email para este evento.',
+            'phone.unique' => 'Já existe uma inscrição com este telemóvel para este evento.',
         ]);
 
         
