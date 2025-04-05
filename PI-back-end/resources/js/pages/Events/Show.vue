@@ -53,6 +53,10 @@ const breadcrumbs: BreadcrumbItem[] = [
                         <button @click="router.get('/events')" class="px-6 py-3 bg-gray-500 text-white rounded-lg text-lg shadow-md hover:bg-gray-600 transition">
                             Voltar
                         </button>
+                        
+                        <Link :href="`/messages/create/${props.event.id}`" class="bg-green-500 text-white px-6 py-3 rounded-lg text-lg shadow-md hover:bg-green-600 transition">
+                            Agendar Mensagem
+                        </Link>
                     </div>
                 </div>
             </div>

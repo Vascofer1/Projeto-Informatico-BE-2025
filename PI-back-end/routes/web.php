@@ -11,6 +11,7 @@ use App\Mail\ParticipantRegistered;
 use Illuminate\Support\Facades\Mail;
 use App\Models\Participant;
 use App\Models\Event;
+use App\Http\Controllers\MessageController;
 
 /*Route::get('/', function () {
     return Inertia::render('Welcome');
@@ -58,6 +59,10 @@ Route::get('/test-email', function () {
 
     return 'Email enviado com sucesso!';
 });
+
+Route::get('/messages/create/{event_id}', [MessageController::class, 'create'])->name('messages.create');
+
+Route::post('/schedule-email', [MessageController::class, 'scheduleEmail']);
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

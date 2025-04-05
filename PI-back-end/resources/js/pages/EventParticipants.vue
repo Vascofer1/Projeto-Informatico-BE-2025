@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineProps, ref, computed } from 'vue';
+import { defineProps, ref, watch } from 'vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { router } from "@inertiajs/vue3";
@@ -54,18 +54,34 @@ const searchQuery = ref(props.filters?.search || '');
         class="w-full p-2 border rounded-lg" />
         <br><br>
 
-      <div class="mb-4">
-        <button
-          @click="router.get(`/event/${props.event.id}/participants`, { status: 'por confirmar' }, { preserveScroll: true, preserveState: true })"
-          class="bg-yellow-500 text-white px-4 py-2 rounded shadow hover:bg-yellow-600 transition">
-            View unconfirmed participants
-        </button>
-
-        <button v-if="props.filters?.status === 'por confirmar'"
-          @click="router.get(`/event/${props.event.id}/participants`, {}, { preserveScroll: true, preserveState: true })"
-          class="ml-4 bg-gray-500 text-white px-4 py-2 rounded shadow hover:bg-gray-600 transition">
-          🔄 View all
-        </button>
+      <div class="mb-4 flex items-center space-x-4">
+        <label class="flex items-center space-x-2">
+          <input
+        type="checkbox"
+        v-model="filters.confirmed"
+        @change="router.get(`/event/${props.event.id}/participants`, { status: filters.confirmed ? 'confirmado' : null }, { preserveScroll: true, preserveState: true })"
+        class="form-checkbox h-5 w-5 text-blue-600"
+          />
+          <span>Show confirmed participants</span>
+        </label>
+        <label class="flex items-center space-x-2">
+          <input
+            type="checkbox"
+            v-model="filters.all"
+            @change="router.get(`/event/${props.event.id}/participants`, { status: filters.all ? null : 'all' }, { preserveScroll: true, preserveState: true })"
+            class="form-checkbox h-5 w-5 text-green-600"
+          />
+          <span>Show all participants</span>
+        </label>
+        <label class="flex items-center space-x-2">
+          <input
+        type="checkbox"
+        v-model="filters.unconfirmed"
+        @change="router.get(`/event/${props.event.id}/participants`, { status: filters.unconfirmed ? 'por confirmar' : null }, { preserveScroll: true, preserveState: true })"
+        class="form-checkbox h-5 w-5 text-yellow-600"
+          />
+          <span>Show unconfirmed participants</span>
+        </label>
       </div>
       <!-- Tabela de Participantes -->
       <div class="bg-white shadow rounded-lg overflow-hidden">
@@ -75,6 +91,7 @@ const searchQuery = ref(props.filters?.search || '');
               <th scope="col" class="px-6 py-3 text-left text-sm font-medium text-gray-700">Nome</th>
               <th scope="col" class="px-6 py-3 text-left text-sm font-medium text-gray-700">Email</th>
               <th scope="col" class="px-6 py-3 text-left text-sm font-medium text-gray-700">Telefone</th>
+              <th scope="col" class="px-6 py-3 text-left text-sm font-medium text-gray-700">Status</th>
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
@@ -82,6 +99,13 @@ const searchQuery = ref(props.filters?.search || '');
               <td class="px-6 py-4 text-sm text-gray-900">{{ participant.name }}</td>
               <td class="px-6 py-4 text-sm text-gray-600">{{ participant.email }}</td>
               <td class="px-6 py-4 text-sm text-gray-600">{{ participant.phone }}</td>
+                <td class="px-6 py-4 text-sm" :class="{
+                  'text-green-600': participant.status === 'confirmado',
+                  'text-red-600': participant.status === 'por confirmar',
+                  'text-gray-600': participant.status !== 'confirmado' && participant.status !== 'por confirmar'
+                }">
+                {{ participant.status }}
+                </td>
             </tr>
           </tbody>
         </table>
