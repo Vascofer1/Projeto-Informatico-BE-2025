@@ -26,15 +26,17 @@ class EventNotification extends Mailable
     public $messageContent;
     public $qrCodeSvg;
     public $participant;
+    public $sendQr;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(Event $event, $messageContent, Participant $participant)
+    public function __construct(Event $event, $messageContent, Participant $participant, $sendQr)
     {
         $this->event = $event;
         $this->messageContent = $messageContent;
         $this->participant = $participant;
+        $this->sendQr = $sendQr;
        
     }
 
@@ -53,16 +55,18 @@ class EventNotification extends Mailable
      */
     public function content(): Content
     {   
-        $qrCodePath = storage_path("app/public/qrcodes/{$this->participant->id}.svg");
-        $this->qrCodeSvg = file_get_contents($qrCodePath);
+        if($this->sendQr){
+            $qrCodePath = storage_path("app/public/qrcodes/{$this->participant->id}.svg");
+            $this->qrCodeSvg = file_get_contents($qrCodePath);
+        }
         
-
         return new Content(
             view: 'emails.event_notification',
             with: [
                 'event' => $this->event,
                 'messageContent' => $this->messageContent,
-                'qrCodeSvg' => $this->qrCodeSvg,
+                'qrCodeSvg' => $this->qrCodeSvg ?? null,
+                'sendQr' => $this->sendQr,
             ]
         );
     }

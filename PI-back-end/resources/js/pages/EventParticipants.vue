@@ -35,13 +35,33 @@ function buildExportUrl(format: 'csv' | 'pdf') {
 }
 
 function onSearch() {
-  router.get(`/event/${props.event.id}/participants`, { search: searchQuery.value }, {
+  router.get(`/event/${props.event?.id}/participants`, { 
+    search: searchQuery.value || '' // Garante que será string vazia se for null/undefined
+  }, {
     preserveScroll: true,
     preserveState: true,
-    replace: true, // evita ficar a encher o histórico do browser
+    replace: true,
   });
 }
 const searchQuery = ref(props.filters?.search || '');
+
+
+const selectedStatus = ref(props.filters?.status || '');
+
+function onStatusChange() {
+  const params: any = {
+    search: searchQuery.value,
+  };
+  if (selectedStatus.value) {
+    params.status = selectedStatus.value;
+  }
+
+  router.get(`/event/${props.event.id}/participants`, params, {
+    preserveScroll: true,
+    preserveState: true,
+    replace: true,
+  });
+}
 </script>
 
 <template>
@@ -52,36 +72,15 @@ const searchQuery = ref(props.filters?.search || '');
 
       <input v-model="searchQuery" @input="onSearch" type="text" placeholder="Pesquisa participantes"
         class="w-full p-2 border rounded-lg" />
-        <br><br>
+      <br><br>
 
-      <div class="mb-4 flex items-center space-x-4">
-        <label class="flex items-center space-x-2">
-          <input
-        type="checkbox"
-        v-model="filters.confirmed"
-        @change="router.get(`/event/${props.event.id}/participants`, { status: filters.confirmed ? 'confirmado' : null }, { preserveScroll: true, preserveState: true })"
-        class="form-checkbox h-5 w-5 text-blue-600"
-          />
-          <span>Show confirmed participants</span>
-        </label>
-        <label class="flex items-center space-x-2">
-          <input
-            type="checkbox"
-            v-model="filters.all"
-            @change="router.get(`/event/${props.event.id}/participants`, { status: filters.all ? null : 'all' }, { preserveScroll: true, preserveState: true })"
-            class="form-checkbox h-5 w-5 text-green-600"
-          />
-          <span>Show all participants</span>
-        </label>
-        <label class="flex items-center space-x-2">
-          <input
-        type="checkbox"
-        v-model="filters.unconfirmed"
-        @change="router.get(`/event/${props.event.id}/participants`, { status: filters.unconfirmed ? 'por confirmar' : null }, { preserveScroll: true, preserveState: true })"
-        class="form-checkbox h-5 w-5 text-yellow-600"
-          />
-          <span>Show unconfirmed participants</span>
-        </label>
+      <div class="mb-4">
+        <label for="status" class="block mb-2 text-sm font-medium text-gray-700">Filtrar por estado:</label>
+        <select id="status" v-model="selectedStatus" @change="onStatusChange" class="p-2 border rounded w-full sm:w-64">
+          <option value="">Todos</option>
+          <option value="confirmado">Confirmados</option>
+          <option value="por confirmar">Por Confirmar</option>
+        </select>
       </div>
       <!-- Tabela de Participantes -->
       <div class="bg-white shadow rounded-lg overflow-hidden">
@@ -99,13 +98,13 @@ const searchQuery = ref(props.filters?.search || '');
               <td class="px-6 py-4 text-sm text-gray-900">{{ participant.name }}</td>
               <td class="px-6 py-4 text-sm text-gray-600">{{ participant.email }}</td>
               <td class="px-6 py-4 text-sm text-gray-600">{{ participant.phone }}</td>
-                <td class="px-6 py-4 text-sm" :class="{
-                  'text-green-600': participant.status === 'confirmado',
-                  'text-red-600': participant.status === 'por confirmar',
-                  'text-gray-600': participant.status !== 'confirmado' && participant.status !== 'por confirmar'
-                }">
+              <td class="px-6 py-4 text-sm" :class="{
+                'text-green-600': participant.status === 'confirmado',
+                'text-red-600': participant.status === 'por confirmar',
+                'text-gray-600': participant.status !== 'confirmado' && participant.status !== 'por confirmar'
+              }">
                 {{ participant.status }}
-                </td>
+              </td>
             </tr>
           </tbody>
         </table>

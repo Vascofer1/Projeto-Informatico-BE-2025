@@ -32,7 +32,8 @@ class ParticipantController extends Controller
         'participants' => $participants,
         'filters' => $request->only(['status', 'search']),
     ]);
-}   
+}
+   
     
 
 
@@ -86,7 +87,7 @@ class ParticipantController extends Controller
 
         $participant->event = $event;
 
-        Mail::to($participant->email)->send(new ParticipantRegistered($participant));
+        //Mail::to($participant->email)->send(new ParticipantRegistered($participant));
 
         return redirect()->route('events.registration', ['id' => $event->id])->with('success', 'Inscrição feita com sucesso!');
         
@@ -103,10 +104,10 @@ class ParticipantController extends Controller
         ->when($search, fn($query) => $query->where('name', 'like', "%{$search}%"))
         ->get();
 
-        $csvData = "Nome,Email,Telemóvel,\n";
+        $csvData = "Nome,Email,Telemóvel,Status\n";
 
         foreach ($participants as $participant) {
-            $csvData .= "{$participant->name},{$participant->email},{$participant->phone}\n";
+            $csvData .= "{$participant->name},{$participant->email},{$participant->phone},{$participant->status}\n";
         }
 
         $filename = "participantes_evento_{$eventId}.csv";
@@ -123,8 +124,9 @@ class ParticipantController extends Controller
     $search = request('search');
 
     $participants = Participant::where('event_id', $eventId)
-        ->when($status, fn($query) => $query->where('status', $status))
-        ->when($search, fn($query) => $query->where('name', 'like', "%{$search}%"))
+        ->when($status === 'por confirmar', fn($query) => $query->where('status', 'por confirmar'))
+        ->when($status === 'confirmado', fn($query) => $query->where('status', 'confirmado'))
+        //->when($search ?? '' !== '', fn($query) => $query->where('name', 'like', "%{$search}%"))
         ->get();
 
     $pdf = Pdf::loadView('pdf.participants', [
@@ -136,4 +138,5 @@ class ParticipantController extends Controller
 }
 
     
+
 }

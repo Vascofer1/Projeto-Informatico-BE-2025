@@ -1,16 +1,15 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useForm } from '@inertiajs/vue3';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { BreadcrumbItem } from '@/types';
 
-// Criar um formulário reativo com Inertia
 const props = defineProps({
     event: Object
 });
 
 const form = useForm({
-    event_id: props.event.id,
+    event_id: '',
     date: '',
     time: '',
     type: '',
@@ -20,27 +19,35 @@ const form = useForm({
 });
 
 
+
 const sendMessage = () => {
-    if (!form.date || !form.time || !form.message) {
-        alert('Por favor, preencha todos os campos antes de enviar.');
-        return;
+    // Limpa erros anteriores
+    form.clearErrors()
+
+    // Validação frontend
+    const errors: Record<string, string> = {}
+
+    if (!form.date) errors.date = 'A data é obrigatória.'
+    if (!form.time) errors.time = 'A hora é obrigatória.'
+    if (!form.message) errors.message = 'A mensagem é obrigatória.'
+    if (!form.type) errors.type = 'O tipo de mensagem é obrigatório.'
+
+    // Se houver erros, mostra e não envia
+    if (Object.keys(errors).length > 0) {
+        form.setError(errors)
+        return
     }
 
-    // Combinar data e hora corretamente para o Laravel
-    const sendDateTime = `${form.date} ${form.time}:00`;
-
-    form.start_time = sendDateTime;
+    // Combina a data e hora para enviar ao backend
+    form.start_time = `${form.date} ${form.time}:00`
 
     form.post('/schedule-email', {
         preserveScroll: true,
         onSuccess: () => {
-            alert('E-mail agendado com sucesso!');
-            form.reset();
+            form.reset()
         }
     });
-
-
-};
+}
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -49,50 +56,121 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
+const formatDate = (date: string | undefined): string => {
+    if (!date) return '';
+    const [year, month, day] = date.split('-');
+    return `${day}-${month}-${year}`;
+};
+const formatTime = (time: string | undefined): string => {
+    if (!time) return '';
+    const [hour, minute] = time.split(':');
+    return `${hour}:${minute}`;
+};
+const formattedTime = formatTime(props.event?.start_time);
 
+const formattedStartDate = formatDate(props.event?.start_date);
+
+
+const defaultMessages = [
+    `Don't forget to join us for the event "${props.event?.name}" on ${formattedStartDate} at ${formattedTime} at ${props.event?.location}.`,
+    `Mark your calendar! The event "${props.event?.name}" is happening on ${formattedStartDate} at ${formattedTime} at ${props.event?.location}.`,
+    `We are excited to see you at "${props.event?.name}" on ${formattedStartDate} at ${formattedTime} at ${props.event?.location}.`,
+    `Reminder: "${props.event?.name}" is just around the corner! Join us on ${formattedStartDate} at ${formattedTime} at ${props.event?.location}.`,
+    `Get ready for "${props.event?.name}"! It's happening on ${formattedStartDate} at ${formattedTime} at ${props.event?.location}.`
+];
+
+
+onMounted(() => {
+    form.event_id = props.event?.id || '';
+
+    const randomIndex = Math.floor(Math.random() * defaultMessages.length);
+    form.message = defaultMessages[randomIndex]; // Define uma mensagem padrão aleatória
+});
+
+const cycleMessage = () => {
+    const currentIndex = defaultMessages.indexOf(form.message);
+    const nextIndex = (currentIndex + 1) % defaultMessages.length;
+    form.message = defaultMessages[nextIndex];
+};
 
 </script>
-
 <template>
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="p-6 bg-gray-100 min-h-screen">
-            <div class="max-w-2xl mx-auto bg-white p-6 shadow-lg rounded-lg w-full max-w-5xl">
-                <h1 class="text-2xl font-bold mb-4">Nova Mensagem</h1>
+            <div class="max-w-3xl mx-auto bg-white p-8 shadow-xl rounded-2xl space-y-6">
+                <h1 class="text-4xl font-bold text-gray-800">
+                    📤 Schedule a message for <span class="text-blue-600">{{ props.event.name }}</span>
+                </h1>
 
-                
+                <!-- Flash messages -->
+                <div v-if="$page.props.flash.success"
+                    class="bg-green-100 border-l-4 border-green-500 text-green-700 px-4 py-3 rounded-lg">
+                    ✅ {{ $page.props.flash.success }}
+                </div>
+                <div v-if="$page.props.flash.error"
+                    class="bg-red-100 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded-lg">
+                    ❌ {{ $page.props.flash.error }}
+                </div>
 
-                <div class="mt-4 grid grid-cols-2 gap-4">
-                    <!-- Data e Hora -->
+                <!-- Data e hora -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div>
-                        <label class="block text-gray-700 font-bold">Data a enviar:</label>
-                        <input v-model="form.date" type="date" class="w-full p-2 border rounded mt-2" />
+                        <label class="block text-gray-700 font-medium mb-1">📅 Date to send</label>
+                        <input v-model="form.date" type="date"
+                            class="w-full p-3 border border-gray-300 rounded-xl shadow-sm focus:ring focus:ring-blue-200" />
+                        <div v-if="form.errors.date" class="text-red-500 text-sm mt-1">{{ form.errors.date }}</div>
                     </div>
+
                     <div>
-                        <label class="block text-gray-700 font-bold">Hora do envio:</label>
-                        <input v-model="form.time" type="time" class="w-full p-2 border rounded mt-2" />
+                        <label class="block text-gray-700 font-medium mb-1">⏰ Time to send</label>
+                        <input v-model="form.time" type="time"
+                            class="w-full p-3 border border-gray-300 rounded-xl shadow-sm focus:ring focus:ring-blue-200" />
+                        <div v-if="form.errors.time" class="text-red-500 text-sm mt-1">{{ form.errors.time }}</div>
                     </div>
                 </div>
 
-                <!-- Tipo de mensagem -->
-                <label class="block text-gray-700 mt-4 font-bold">Tipo de mensagem:</label>
-                <select v-model="form.type" class="w-full p-2 border rounded mt-2">
-                    <option value="email">Email</option>
-                    <option value="whatsapp">WhatsApp</option>
-                </select>
+                <!-- Tipo -->
+                <div>
+                    <label class="block text-gray-700 font-medium mb-1">📨 Message Type</label>
+                    <select v-model="form.type"
+                        class="w-full p-3 border border-gray-300 rounded-xl shadow-sm focus:ring focus:ring-blue-200">
+                        <option disabled value="">Selecionar tipo...</option>
+                        <option value="email">Email</option>
+                        <option value="whatsapp">WhatsApp</option>
+                    </select>
+                    <div v-if="form.errors.type" class="text-red-500 text-sm mt-1">{{ form.errors.type }}</div>
+                </div>
 
-                <label class="flex items-center mt-4">
-                    <input type="checkbox" v-model="form.send_qr" class="mr-2 font-bold">
-                    Incluir QR Code no email
-                </label>
+                <!-- QR Code -->
+                <div v-if="form.type === 'email'" class="flex items-center mt-2 space-x-2">
+                    <input type="checkbox" v-model="form.send_qr"
+                        class="w-5 h-5 text-blue-600 border-gray-300 rounded" />
+                    <label class="text-gray-700 font-medium">Include QR Code in the email</label>
+                </div>
 
                 <!-- Mensagem personalizada -->
-                <label class="block text-gray-700 mt-4 font-bold">Mensagem personalizada:</label>
-                <textarea v-model="form.message" class="w-full p-2 border rounded mt-2" rows="4"></textarea>
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2">📝 Custom Message</label>
+                    <div class="flex justify-end">
+                        <button @click="cycleMessage"
+                            class="bg-gray-200 text-gray-700 py-1 px-4 rounded-full hover:bg-gray-300 font-medium transition">
+                            🔄 Change Message
+                        </button>
+                    </div>
+                    <textarea v-model="form.message"
+                        class="w-full p-3 border border-gray-300 rounded-xl mt-2 shadow-sm focus:ring focus:ring-blue-200"
+                        rows="4" placeholder="Type your message..."></textarea>
+                    <div v-if="form.errors.message" class="text-red-500 text-sm mt-1">{{ form.errors.message }}</div>
+                </div>
 
-                <!-- Botão de enviar -->
-                <button @click="sendMessage" class="w-full bg-blue-500 text-white py-2 rounded mt-4 hover:bg-blue-600 font-bold">
-                    Enviar Mensagem
-                </button>
+                <!-- Botão -->
+                <div>
+                    <button @click="sendMessage"
+                        class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 text-lg font-semibold rounded-xl shadow-lg transition disabled:opacity-50"
+                        :disabled="form.processing">
+                        ✅ Schedule Message
+                    </button>
+                </div>
             </div>
         </div>
     </AppLayout>
