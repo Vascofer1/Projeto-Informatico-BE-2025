@@ -69,6 +69,12 @@ onMounted(() => {
   setInterval(calculateCountdown, 1000);
 });
 
+const eventHasStarted = computed(() => {
+  const eventDate = new Date(`${props.event.start_date}T${props.event.start_time}`);
+  const now = new Date();
+  return now >= eventDate;
+});
+
 const isSameDay = computed(() => props.event.start_date === props.event.end_date);
 
 // Função para formatar a data conforme desejado
@@ -98,6 +104,11 @@ const duration = computed(() => {
 });
 
 const submitForm = () => {
+  if (eventHasStarted.value) {
+    alert("Sorry, this event has already started. Registration is closed.");
+    return;
+  }
+
   router.post(`/inscricao/${props.event.id}`, formData.value, {
     onSuccess: () => {
       alert("Registration completed successfully!");
@@ -152,7 +163,8 @@ const submitForm = () => {
         </div>
       </div>
 
-      <form @submit.prevent="submitForm" class="space-y-4 mt-6">
+      <br>
+      <form v-if="!eventHasStarted" @submit.prevent="submitForm" class="space-y-4 mt-6" >
         <input v-model="formData.name" placeholder="Name" class="border p-2 w-full" required />
         <p v-if="errors.name" class="text-red-500 text-sm">{{ errors.name }}</p>
 
@@ -169,6 +181,9 @@ const submitForm = () => {
         <p class="text-center text-gray-600 mt-4">
           Don't miss this unique opportunity!</p>
       </form>
+      <p v-else class="text-center text-red-600 text-2xl font-bold mt-8">
+        Sorry, this event has already started. Registration is closed.
+      </p>
     </div>
   </div>
 </template>

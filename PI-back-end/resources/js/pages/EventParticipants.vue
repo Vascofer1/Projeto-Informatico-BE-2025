@@ -10,7 +10,6 @@ const props = defineProps({
   filters: Object
 })
 
-
 const breadcrumbs: BreadcrumbItem[] = [
   {
     title: `Events / ${props.event.name} / Participants`,
@@ -26,7 +25,6 @@ function goToPage(url) {
     })
   }
 }
-
 
 function buildExportUrl(format: 'csv' | 'pdf') {
   const base = `/eventos/${props.event.id}/participantes/export-${format}`;
@@ -44,7 +42,6 @@ function onSearch() {
   });
 }
 const searchQuery = ref(props.filters?.search || '');
-
 
 const selectedStatus = ref(props.filters?.status || '');
 
@@ -66,43 +63,75 @@ function onStatusChange() {
 
 <template>
   <AppLayout :breadcrumbs="breadcrumbs">
+    <div class="container mx-auto p-4 bg-gray-50 dark:bg-gray-900 min-h-screen">
+      <h1 class="text-3xl font-bold mb-6 text-gray-800 dark:text-white">
+        {{ props.event.name }} - Participants
+      </h1>
 
-    <div class="container mx-auto p-4">
-      <h1 class="text-3xl font-bold mb-6">{{ props.event.name }} - Participantes</h1>
-
-      <input v-model="searchQuery" @input="onSearch" type="text" placeholder="Pesquisa participantes"
-        class="w-full p-2 border rounded-lg" />
+      <input 
+        v-model="searchQuery" 
+        @input="onSearch" 
+        type="text" 
+        placeholder="Pesquisa participantes"
+        class="w-full p-2 border rounded-lg bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-800 dark:text-white"
+      />
       <br><br>
 
       <div class="mb-4">
-        <label for="status" class="block mb-2 text-sm font-medium text-gray-700">Filtrar por estado:</label>
-        <select id="status" v-model="selectedStatus" @change="onStatusChange" class="p-2 border rounded w-full sm:w-64">
+        <label for="status" class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+          Filtrar por estado:
+        </label>
+        <select 
+          id="status" 
+          v-model="selectedStatus" 
+          @change="onStatusChange" 
+          class="p-2 border rounded w-full sm:w-64 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-800 dark:text-white">
           <option value="">Todos</option>
           <option value="confirmado">Confirmados</option>
           <option value="por confirmar">Por Confirmar</option>
         </select>
       </div>
+
       <!-- Tabela de Participantes -->
-      <div class="bg-white shadow rounded-lg overflow-hidden">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-100">
+      <div class="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
+        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead class="bg-gray-100 dark:bg-gray-700">
             <tr>
-              <th scope="col" class="px-6 py-3 text-left text-sm font-medium text-gray-700">Nome</th>
-              <th scope="col" class="px-6 py-3 text-left text-sm font-medium text-gray-700">Email</th>
-              <th scope="col" class="px-6 py-3 text-left text-sm font-medium text-gray-700">Telefone</th>
-              <th scope="col" class="px-6 py-3 text-left text-sm font-medium text-gray-700">Status</th>
+              <th scope="col" class="px-6 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-200">
+                Nome
+              </th>
+              <th scope="col" class="px-6 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-200">
+                Email
+              </th>
+              <th scope="col" class="px-6 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-200">
+                Telefone
+              </th>
+              <th scope="col" class="px-6 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-200">
+                Status
+              </th>
             </tr>
           </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
-            <tr v-for="participant in props.participants.data" :key="participant.id" class="hover:bg-gray-50">
-              <td class="px-6 py-4 text-sm text-gray-900">{{ participant.name }}</td>
-              <td class="px-6 py-4 text-sm text-gray-600">{{ participant.email }}</td>
-              <td class="px-6 py-4 text-sm text-gray-600">{{ participant.phone }}</td>
-              <td class="px-6 py-4 text-sm" :class="{
-                'text-green-600': participant.status === 'confirmado',
-                'text-red-600': participant.status === 'por confirmar',
-                'text-gray-600': participant.status !== 'confirmado' && participant.status !== 'por confirmar'
-              }">
+          <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+            <tr 
+              v-for="participant in props.participants.data" 
+              :key="participant.id" 
+              class="hover:bg-gray-50 dark:hover:bg-gray-700">
+              <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
+                {{ participant.name }}
+              </td>
+              <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">
+                {{ participant.email }}
+              </td>
+              <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">
+                {{ participant.phone }}
+              </td>
+              <td 
+                class="px-6 py-4 text-sm"
+                :class="{
+                  'text-green-600 dark:text-green-400': participant.status === 'confirmado',
+                  'text-red-600 dark:text-red-400': participant.status === 'por confirmar',
+                  'text-gray-600 dark:text-gray-300': participant.status !== 'confirmado' && participant.status !== 'por confirmar'
+                }">
                 {{ participant.status }}
               </td>
             </tr>
@@ -112,24 +141,31 @@ function onStatusChange() {
 
       <!-- Paginação -->
       <div class="flex justify-center mt-6 space-x-1">
-        <button v-for="link in props.participants.links" :key="link.label" :disabled="!link.url"
-          @click="goToPage(link.url)" v-html="link.label"
-          class="px-3 py-1 rounded text-sm font-medium border transition" :class="{
+        <button 
+          v-for="link in props.participants.links" 
+          :key="link.label" 
+          :disabled="!link.url"
+          @click="goToPage(link.url)" 
+          v-html="link.label"
+          class="px-3 py-1 rounded text-sm font-medium border transition" 
+          :class="{
             'bg-blue-500 text-white border-blue-500': link.active,
-            'text-gray-600 border-gray-300 hover:bg-gray-100': !link.active && link.url,
+            'text-gray-600 border-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-300': !link.active && link.url,
             'text-gray-400 border-gray-200 cursor-not-allowed': !link.url
-          }" />
+          }"
+        />
       </div>
 
       <!-- Botões de Exportação -->
       <div class="mt-8 flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
-        <a :href="buildExportUrl('csv')"
-          class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition text-center">
+        <a 
+          :href="buildExportUrl('csv')"
+          class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow transition text-center">
           📄 Export CSV
         </a>
-
-        <a :href="buildExportUrl('pdf')"
-          class="bg-red-600 text-white px-4 py-2 rounded shadow hover:bg-red-700 transition text-center">
+        <a 
+          :href="buildExportUrl('pdf')"
+          class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded shadow transition text-center">
           🧾 Export PDF
         </a>
       </div>

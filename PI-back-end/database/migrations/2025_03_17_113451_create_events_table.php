@@ -23,7 +23,8 @@ return new class extends Migration
             $table->integer('limit_participants')->nullable();
             $table->string('category')->nullable();
             $table->string('type')->nullable();
-            $table->string('status')->default('por decorrer');
+            $table->string('status')->default('Upcoming');
+            $table->string('image')->nullable();
             $table->timestamps();
         });
     }
