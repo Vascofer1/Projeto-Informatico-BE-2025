@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('phone');
             $table->boolean('presence')->default(false);
             $table->foreignId('event_id')->constrained()->onDelete('cascade');
-            $table->string('status')->default('por confirmar');
+            $table->string('status')->default('Unconfirmed');
             $table->string('qrcode')->nullable();
             $table->timestamps();
         });

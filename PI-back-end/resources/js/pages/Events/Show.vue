@@ -62,63 +62,79 @@ console.log(props.event)
 
 <template>
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="p-6 bg-gray-100 min-h-screen">
-
-            <div class="bg-white rounded-xl shadow-md p-6 md:flex md:space-x-8">
+        <div class="p-6 bg-gray-100 dark:bg-gray-900 min-h-screen">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 md:flex md:space-x-8">
                 <!-- Imagem -->
-
-                <img v-if="event.image" :src="`/storage/${event.image}`" alt="Event Image"
-                    class="w-full md:w-64 h-64 object-cover rounded-lg mb-6 md:mb-0" />
+                <img
+                  v-if="event.image"
+                  :src="`/storage/${event.image}`"
+                  alt="Event Image"
+                  class="w-full md:w-64 h-64 object-cover rounded-lg mb-6 md:mb-0"
+                />
 
                 <!-- Info -->
                 <div class="flex-1 space-y-6">
                     <div class="flex items-center justify-between flex-wrap gap-2">
-                        <h1 class="text-5xl font-bold text-gray-800">{{ event.name }}</h1>
-                        <span class="px-4 py-1 text-base font-semibold text-white rounded-full" :class="statusColors">
-                            {{ event.status }}
+                        <h1 class="text-5xl font-bold text-gray-800 dark:text-white">
+                          {{ event.name }}
+                        </h1>
+                        <span 
+                          class="px-4 py-1 text-base font-semibold text-white rounded-full" 
+                          :class="statusColors">
+                          {{ event.status }}
                         </span>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-gray-800 text-base">
-                        <p><span class="font-semibold">📍 Location:</span> {{ event.location }}</p>
-                        <p><span class="font-semibold">📁 Type:</span> {{ event.type }}</p>
-                        <p><span class="font-semibold">🏷️ Category:</span> {{ event.category }}</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-gray-800 dark:text-gray-200 text-base">
                         <p>
-                            <span class="font-semibold">🕓 Start:</span> {{ formattedStartDate }} às
-                            {{ formattedTime }}
+                          <span class="font-semibold">📍 Location:</span> {{ event.location }}
                         </p>
                         <p>
-                            <span class="font-semibold">🕛 End:</span> {{ formattedEndDate }} às
-                            {{ formattedEndTime }}
+                          <span class="font-semibold">📁 Type:</span> {{ event.type }}
+                        </p>
+                        <p>
+                          <span class="font-semibold">🏷️ Category:</span> {{ event.category }}
+                        </p>
+                        <p>
+                          <span class="font-semibold">🕓 Start:</span> {{ formattedStartDate }} at
+                          {{ formattedTime }}
+                        </p>
+                        <p>
+                          <span class="font-semibold">🕛 End:</span> {{ formattedEndDate }} at
+                          {{ formattedEndTime }}
                         </p>
                     </div>
 
                     <div>
-                        <p class="text-gray-800 font-semibold text-lg">📝 Description:</p>
-                        <p class="text-gray-700 italic">
-                            {{ event.description ? event.description : 'No description available.' }}
+                        <p class="text-gray-800 dark:text-gray-200 font-semibold text-lg">
+                          📝 Description:
+                        </p>
+                        <p class="text-gray-700 dark:text-gray-300 italic">
+                          {{ event.description ? event.description : 'No description available.' }}
                         </p>
                     </div>
 
                     <!-- Cards -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4">
-                        <div
-                            class="bg-green-50 border-l-4 border-green-500 p-4 rounded-xl flex items-center space-x-4 shadow-sm">
+                        <div class="bg-green-50 dark:bg-green-900 border-l-4 border-green-500 dark:border-green-400 p-4 rounded-xl flex items-center space-x-4 shadow-sm">
                             <span class="text-4xl">✅</span>
                             <div>
-                                <p class="text-gray-700 text-base">Confirmed Participants</p>
+                                <p class="text-gray-700 dark:text-gray-200 text-base">
+                                  Confirmed Participants
+                                </p>
                                 <p class="text-3xl font-bold text-green-600">
-                                    {{ event.confirmed_count || 0 }}
+                                  {{ event.confirmed_count || 0 }}
                                 </p>
                             </div>
                         </div>
-                        <div
-                            class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-xl flex items-center space-x-4 shadow-sm">
+                        <div class="bg-yellow-50 dark:bg-yellow-900 border-l-4 border-yellow-500 dark:border-yellow-400 p-4 rounded-xl flex items-center space-x-4 shadow-sm">
                             <span class="text-4xl">⏳</span>
                             <div>
-                                <p class="text-gray-700 text-base">Waiting Participants</p>
+                                <p class="text-gray-700 dark:text-gray-200 text-base">
+                                  Waiting Participants
+                                </p>
                                 <p class="text-3xl font-bold text-yellow-600">
-                                    {{ event.waiting_count || 0 }}
+                                  {{ event.waiting_count || 0 }}
                                 </p>
                             </div>
                         </div>
@@ -127,16 +143,16 @@ console.log(props.event)
                     <!-- Botões -->
                     <div class="pt-6 flex flex-wrap gap-4">
                         <Link :href="`/event/${event.id}/participants`"
-                            class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg text-base shadow transition">
-                        👥 Show {{ event.participants_count }} Participants
+                              class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg text-base shadow transition">
+                          👥 Show {{ event.participants_count }} Participants
                         </Link>
                         <button v-if="event.status === 'Upcoming'" @click="router.get(`/events/${event.id}/edit`)"
-                            class="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-lg text-base shadow transition">
-                            ✏️ Edit Event
+                                class="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-lg text-base shadow transition">
+                          ✏️ Edit Event
                         </button>
                         <Link :href="`/messages/create/${props.event.id}`"
-                            class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg text-base shadow transition">
-                        📩 Schedule Message
+                              class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg text-base shadow transition">
+                          📩 Schedule Message
                         </Link>
                     </div>
                 </div>
