@@ -63,8 +63,10 @@ console.log(props.event)
 <template>
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="p-6 bg-gray-100 min-h-screen">
+
             <div class="bg-white rounded-xl shadow-md p-6 md:flex md:space-x-8">
                 <!-- Imagem -->
+
                 <img v-if="event.image" :src="`/storage/${event.image}`" alt="Event Image"
                     class="w-full md:w-64 h-64 object-cover rounded-lg mb-6 md:mb-0" />
 

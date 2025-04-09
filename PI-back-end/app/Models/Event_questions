@@ -4,6 +4,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Event;
+use App\Models\Question;
 
 class Event_questions extends Model
 {
@@ -12,12 +13,17 @@ class Event_questions extends Model
 
     protected $fillable = [
         'event_id',
-        'question',
-        'mandatory_y_n',
+        'question_id',
+        'mandatory',
     ];
 
     public function events()
     {
         return $this->belongsTo(Event::class);
+    }
+
+    public function questions()
+    {
+        return $this->belongsTo(Question::class);
     }
 }

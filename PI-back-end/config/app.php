@@ -67,6 +67,7 @@ return [
 
     'timezone' => 'Europe/Lisbon',
 
+
     /*
     |--------------------------------------------------------------------------
     | Application Locale Configuration
