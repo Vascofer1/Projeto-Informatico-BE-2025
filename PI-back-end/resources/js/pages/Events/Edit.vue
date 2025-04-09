@@ -105,7 +105,7 @@ const breadcrumbs: BreadcrumbItem[] = [
   <AppLayout :breadcrumbs="breadcrumbs">
     <div class="p-10 bg-gray-100 min-h-screen flex justify-center">
       <div class="bg-white p-10 rounded-lg shadow-xl w-full max-w-5xl">
-        <h2 class="text-2xl font-bold mb-6 text-center">EDIT EVENT</h2>
+        <h2 class="text-2xl mb-6 text-center">EDIT EVENT - <span class="text-3xl font-bold">{{ event.name }}</span></h2>
         <h3 class="mt-2 font-bold">Name</h3>
         <input v-model="form.name" placeholder="Event Name" class="w-full p-2 mb-4 border rounded" />
 

@@ -19,12 +19,32 @@ const props = defineProps({
 });
 
 
-console.log("Recent Events:", props.recentEvents);
-console.log("Ongoing Events:", props.ongoingEvents);
-console.log("Upcoming Events:", props.upcomingEvents);
+function formatDate(dateStr: string): string {
+  const [year, month, day] = dateStr.split('-');
+  return `${day}-${month}-${year}`;
+}
+
+function formatEventDate(event: any) {
+  const formatTime = (timeStr: string) => timeStr.slice(0, 5);
+
+  const sameDay = event.start_date === event.end_date;
+
+  if (sameDay) {
+    return {
+      dateLine: formatDate(event.start_date),
+      timeLine: `${formatTime(event.start_time)} - ${formatTime(event.end_time)}`,
+    };
+  }
+
+  return {
+    dateLine: `${formatDate(event.start_date)} ${formatTime(event.start_time)}`,
+    timeLine: `${formatDate(event.end_date)} ${formatTime(event.end_time)}`,
+  };
+}
 </script>
 
 <template>
+
   <Head title="Dashboard" />
 
   <AppLayout :breadcrumbs="breadcrumbs">
@@ -37,34 +57,63 @@ console.log("Upcoming Events:", props.upcomingEvents);
           <h2 class="text-xl font-semibold mb-4 text-blue-600">Recent Events</h2>
           <p v-if="!props.recentEvents || props.recentEvents.length === 0" class="text-gray-500">No events available</p>
           <ul v-else class="divide-y divide-gray-300">
-            <li v-for="event in props.recentEvents" :key="event.id" class="py-2">
-              <span class="block font-medium">{{ event.name }}</span>
-              <span class="text-sm text-gray-600">{{ event.start_date }} {{ event.start_time }} - {{ event.end_date }} {{ event.end_time }}</span>
-            </li>
+            <template v-for="event in props.recentEvents" :key="event.id">
+              <li class="py-2">
+                <span class="block text-lg font-bold">{{ event.name }}</span>
+                <div class="mt-1">
+                  <div class="text-sm text-gray-700">
+                    🗓️ {{ formatEventDate(event).dateLine }}
+                  </div>
+                  <div class="text-xs text-gray-500 mt-0.5">
+                    ⏰ {{ formatEventDate(event).timeLine }}
+                  </div>
+                </div>
+              </li>
+            </template>
           </ul>
         </div>
 
         <!-- Ongoing Events -->
         <div class="p-6 bg-white rounded-lg shadow-lg text-center">
           <h2 class="text-xl font-semibold mb-4 text-green-600">Ongoing Events</h2>
-          <p v-if="!props.ongoingEvents || props.ongoingEvents.length === 0" class="text-gray-500">No events available</p>
+          <p v-if="!props.ongoingEvents || props.ongoingEvents.length === 0" class="text-gray-500">No events available
+          </p>
           <ul v-else class="divide-y divide-gray-300">
-            <li v-for="event in props.ongoingEvents" :key="event.id" class="py-2">
-              <span class="block font-medium">{{ event.name }}</span>
-              <span class="text-sm text-gray-600">{{ event.start_date }} {{ event.start_time }} - {{ event.end_date }} {{ event.end_time }}</span>
-            </li>
+            <template v-for="event in props.ongoingEvents" :key="event.id">
+              <li class="py-2">
+                <span class="block text-lg font-bold">{{ event.name }}</span>
+                <div class="mt-1">
+                  <div class="text-sm text-gray-700">
+                    🗓️ {{ formatEventDate(event).dateLine }}
+                  </div>
+                  <div class="text-xs text-gray-500 mt-0.5">
+                    ⏰ {{ formatEventDate(event).timeLine }}
+                  </div>
+                </div>
+              </li>
+            </template>
           </ul>
         </div>
 
         <!-- Upcoming Events -->
         <div class="p-6 bg-white rounded-lg shadow-lg text-center">
           <h2 class="text-xl font-semibold mb-4 text-purple-600">Upcoming Events</h2>
-          <p v-if="!props.upcomingEvents || props.upcomingEvents.length === 0" class="text-gray-500">No events available</p>
+          <p v-if="!props.upcomingEvents || props.upcomingEvents.length === 0" class="text-gray-500">No events available
+          </p>
           <ul v-else class="divide-y divide-gray-300">
-            <li v-for="event in props.upcomingEvents" :key="event.id" class="py-2">
-              <span class="block font-medium">{{ event.name }}</span>
-              <span class="text-sm text-gray-600">{{ event.start_date }} {{ event.start_time }} - {{ event.end_date }} {{ event.end_time }}</span>
-            </li>
+            <template v-for="event in props.upcomingEvents" :key="event.id">
+              <li class="py-2">
+                <span class="block text-lg font-bold">{{ event.name }}</span>
+                <div class="mt-1">
+                  <div class="text-sm text-gray-700">
+                    🗓️ {{ formatEventDate(event).dateLine }}
+                  </div>
+                  <div class="text-xs text-gray-500 mt-0.5">
+                    ⏰ {{ formatEventDate(event).timeLine }}
+                  </div>
+                </div>
+              </li>
+            </template>
           </ul>
         </div>
       </div>

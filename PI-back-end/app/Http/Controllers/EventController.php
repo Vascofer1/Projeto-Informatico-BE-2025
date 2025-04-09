@@ -17,6 +17,8 @@ class EventController extends Controller
      */
     public function index(Request $request)
 {
+    $this->updateEventStatus();
+
     $query = Event::query();
 
     if ($request->has('search')) {
@@ -72,16 +74,18 @@ protected function updateEventStatus()
     $now = now(); // Data e hora atuais
 
     Event::all()->each(function ($event) use ($now) {
-        // Verifica o status do evento com base nas datas e horários
-        if ($event->end_date < $now->toDateString() || 
-            ($event->end_date == $now->toDateString() && $event->end_time < $now->toTimeString())) {
+        $startDateTime = \Carbon\Carbon::parse("{$event->start_date} {$event->start_time}");
+        $endDateTime = \Carbon\Carbon::parse("{$event->end_date} {$event->end_time}");
+
+        if ($endDateTime->lessThan($now)) {
             $event->status = 'Finished'; // Evento terminou
-        } elseif ($event->start_date <= $now->toDateString() && $event->end_date >= $now->toDateString()) {
-            $event->status = 'On going'; // Evento está em andamento
-        } elseif ($event->start_date > $now->toDateString()) {
+        } elseif ($startDateTime->greaterThan($now)) {
             $event->status = 'Upcoming'; // Evento no futuro
+        } else {
+            $event->status = 'On going'; // Evento está em andamento
         }
-        $event->save(); // Salva as alterações
+
+        $event->save();
     });
 }
 
@@ -104,9 +108,9 @@ protected function updateEventStatus()
         'category' => 'required|string',
         'location' => 'required|string',
         'start_date' => 'required|date|after_or_equal:' . $now->toDateString(),
-        'start_time' => 'required|date_format:H:i:s',
+        'start_time' => 'required|date_format:H:i',
         'end_date' => 'required|date|after_or_equal:start_date',
-        'end_time' => 'required|date_format:H:i:s',
+        'end_time' => 'required|date_format:H:i',
         'image' => 'nullable|image|max:2048',
         'limit_participants' => 'nullable|integer|min:1',
         'description' => 'nullable|string',
@@ -149,6 +153,8 @@ protected function updateEventStatus()
      */
     public function show(Event $event)
     {
+        $this->updateEventStatus();
+
         $event->loadCount('participants'); // Adiciona participants_count ao evento
 
         return Inertia::render('Events/Show', [

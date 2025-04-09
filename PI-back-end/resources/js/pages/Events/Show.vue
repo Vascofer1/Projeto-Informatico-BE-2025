@@ -44,7 +44,7 @@ const statusColors = computed(() => {
 <template>
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="p-6 bg-gray-100 min-h-screen">
-            <div class="flex flex-col md:flex-row items-start space-x-6">
+            <div class="flex flex-col md:flex-row items-start space-x-8">
                 <!-- Imagem ao lado do conteúdo -->
                 <img v-if="event.image" :src="`/storage/${event.image}`" alt="Event Image"
                     class="w-64 h-64 object-cover rounded-lg shadow-lg">
@@ -73,10 +73,10 @@ const statusColors = computed(() => {
                             class="px-3 py-1 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition">
                             Edit Event
                         </button>
-                        <button @click="router.get('/events')"
+                        <!--<button @click="router.get('/events')"
                             class="px-6 py-3 bg-gray-500 text-white rounded-lg text-lg shadow-md hover:bg-gray-600 transition">
-                            Voltar
-                        </button>
+                            Back
+                        </button>-->
                     </div>
                 </div>
             </div>
