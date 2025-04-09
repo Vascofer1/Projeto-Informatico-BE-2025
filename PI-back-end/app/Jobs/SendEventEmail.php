@@ -20,13 +20,15 @@ class SendEventEmail implements ShouldQueue
 
     public $event;
     public $messageContent;
+    public $sendQr;
 
 
-    public function __construct($event, $messageContent)
+    public function __construct($event, $messageContent, $sendQr)
     {
         $this->event = $event;
         $this->messageContent = $messageContent;
-    
+        $this->sendQr = $sendQr;
+
     }
 
     public function handle()
@@ -34,13 +36,14 @@ class SendEventEmail implements ShouldQueue
         \Log::info("Job SendEventEmail está a ser processado!", [
             'event' => $this->event->id,
             'message' => $this->messageContent,
+            'send_qr' => $this->sendQr,
         ]);
     
         foreach ($this->event->participants as $participant) {
             \Log::info("A enviar email para: " . $participant->email);
     
             Mail::to($participant->email)->send(
-                new EventNotification($this->event, $this->messageContent, $participant)
+                new EventNotification($this->event, $this->messageContent, $participant, $this->sendQr)
             );
         }
     }

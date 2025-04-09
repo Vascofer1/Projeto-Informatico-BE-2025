@@ -34,6 +34,7 @@ class MessageController extends Controller
             'message' => 'required|string',
             'start_time' => 'required|date_format:Y-m-d H:i:s',
             'type' => 'required|in:email',
+            'send_qr' => 'boolean',
     ]);
 
         \Log::info('Request validated successfully');
@@ -50,14 +51,15 @@ class MessageController extends Controller
         \Log::info('Send time parsed', ['send_time' => $sendTime]);
         $sendTime = Carbon::parse($sendTime, 'Europe/Lisbon')->setTimezone('UTC');
         
-        if ($sendTime->isPast()) {
-            return response()->json(['error' => 'O horário agendado já passou.'], 422);
+        if ($sendTime->isPast() || $sendTime->toDateString() < Carbon::now('UTC')->toDateString()) {
+            return redirect()->back()->with('error', 'A data/hora de envio não pode ser no passado.');
         }
         
-        dispatch(new SendEventEmail($event, $messageContent))->delay($sendTime);
+        dispatch(new SendEventEmail($event, $messageContent, $request->send_qr))->delay($sendTime); //aqui
         \Log::info('Email job dispatched', ['event_id' => $event->id, 'send_time' => $sendTime]);
 
-        return response()->json(['message' => 'E-mail agendado com sucesso!']);
+        return redirect()->back()->with('success', 'Mensagem agendada com sucesso!');
+
     }
 
 

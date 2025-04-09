@@ -10,13 +10,16 @@
 
 <p>{{ $messageContent ?? 'Conteúdo da mensagem não disponível.' }}</p>
 
-<p>Here is your QR Code for the event:</p>
 
-{!! $qrCodeSvg !!} <!-- Renderiza o SVG diretamente -->
+@if($sendQr) <!-- Verifica se o QR Code não está vazio -->
+    <p>Here is your QR Code for the event:</p>
+    {!! $qrCodeSvg !!} <!-- Renderiza o SVG diretamente -->
+@endif
 
-<p>Thanks for your participation!</p>
+
 <p>Best regards,</p>  
-{{ config('app.name') }}</p>
+<p>Eventify</p>
+<p>Note: This is an automated message, please do not reply.</p>
     
 </body>
 </html>
