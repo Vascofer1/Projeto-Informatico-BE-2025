@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineProps, ref, computed } from 'vue';
+import { defineProps, ref, watch } from 'vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { router } from "@inertiajs/vue3";
@@ -35,13 +35,33 @@ function buildExportUrl(format: 'csv' | 'pdf') {
 }
 
 function onSearch() {
-  router.get(`/event/${props.event.id}/participants`, { search: searchQuery.value }, {
+  router.get(`/event/${props.event?.id}/participants`, { 
+    search: searchQuery.value || '' // Garante que será string vazia se for null/undefined
+  }, {
     preserveScroll: true,
     preserveState: true,
-    replace: true, // evita ficar a encher o histórico do browser
+    replace: true,
   });
 }
 const searchQuery = ref(props.filters?.search || '');
+
+
+const selectedStatus = ref(props.filters?.status || '');
+
+function onStatusChange() {
+  const params: any = {
+    search: searchQuery.value,
+  };
+  if (selectedStatus.value) {
+    params.status = selectedStatus.value;
+  }
+
+  router.get(`/event/${props.event.id}/participants`, params, {
+    preserveScroll: true,
+    preserveState: true,
+    replace: true,
+  });
+}
 </script>
 
 <template>
@@ -52,20 +72,15 @@ const searchQuery = ref(props.filters?.search || '');
 
       <input v-model="searchQuery" @input="onSearch" type="text" placeholder="Pesquisa participantes"
         class="w-full p-2 border rounded-lg" />
-        <br><br>
+      <br><br>
 
       <div class="mb-4">
-        <button
-          @click="router.get(`/event/${props.event.id}/participants`, { status: 'por confirmar' }, { preserveScroll: true, preserveState: true })"
-          class="bg-yellow-500 text-white px-4 py-2 rounded shadow hover:bg-yellow-600 transition">
-            View unconfirmed participants
-        </button>
-
-        <button v-if="props.filters?.status === 'por confirmar'"
-          @click="router.get(`/event/${props.event.id}/participants`, {}, { preserveScroll: true, preserveState: true })"
-          class="ml-4 bg-gray-500 text-white px-4 py-2 rounded shadow hover:bg-gray-600 transition">
-          🔄 View all
-        </button>
+        <label for="status" class="block mb-2 text-sm font-medium text-gray-700">Filtrar por estado:</label>
+        <select id="status" v-model="selectedStatus" @change="onStatusChange" class="p-2 border rounded w-full sm:w-64">
+          <option value="">Todos</option>
+          <option value="confirmado">Confirmados</option>
+          <option value="por confirmar">Por Confirmar</option>
+        </select>
       </div>
       <!-- Tabela de Participantes -->
       <div class="bg-white shadow rounded-lg overflow-hidden">
@@ -75,6 +90,7 @@ const searchQuery = ref(props.filters?.search || '');
               <th scope="col" class="px-6 py-3 text-left text-sm font-medium text-gray-700">Nome</th>
               <th scope="col" class="px-6 py-3 text-left text-sm font-medium text-gray-700">Email</th>
               <th scope="col" class="px-6 py-3 text-left text-sm font-medium text-gray-700">Telefone</th>
+              <th scope="col" class="px-6 py-3 text-left text-sm font-medium text-gray-700">Status</th>
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
@@ -82,6 +98,13 @@ const searchQuery = ref(props.filters?.search || '');
               <td class="px-6 py-4 text-sm text-gray-900">{{ participant.name }}</td>
               <td class="px-6 py-4 text-sm text-gray-600">{{ participant.email }}</td>
               <td class="px-6 py-4 text-sm text-gray-600">{{ participant.phone }}</td>
+              <td class="px-6 py-4 text-sm" :class="{
+                'text-green-600': participant.status === 'confirmado',
+                'text-red-600': participant.status === 'por confirmar',
+                'text-gray-600': participant.status !== 'confirmado' && participant.status !== 'por confirmar'
+              }">
+                {{ participant.status }}
+              </td>
             </tr>
           </tbody>
         </table>

@@ -26,7 +26,7 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: 'Messages',
-        href: '/messages',
+        href: '/messages/create',
         icon: MessagesSquare,
     },
 ];

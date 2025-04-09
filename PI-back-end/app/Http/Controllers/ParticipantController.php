@@ -22,6 +22,7 @@ class ParticipantController extends Controller
     $participants = Participant::query()
         ->where('event_id', $id)
         ->when($request->status === 'por confirmar', fn ($q) => $q->where('status', 'por confirmar'))
+        ->when($request->status === 'confirmado', fn ($q) => $q->where('status', 'confirmado'))
         ->when($request->search, fn ($q, $search) => $q->where('name', 'like', "%{$search}%"))
         ->paginate(7)
         ->withQueryString();
@@ -31,7 +32,8 @@ class ParticipantController extends Controller
         'participants' => $participants,
         'filters' => $request->only(['status', 'search']),
     ]);
-}   
+}
+   
     
 
 
@@ -42,16 +44,24 @@ class ParticipantController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => [
-                'required',
-                'email',
-                'max:255',
-                Rule::unique('participants')->where(function ($query) use ($eventId) {
-                    return $query->where('event_id', $eventId);
-                }),
+            'required',
+            'email',
+            'max:255',
+            Rule::unique('participants')->where(function ($query) use ($eventId) {
+                return $query->where('event_id', $eventId);
+            }),
             ],
-            'phone' => 'required|string|max:20',
+            'phone' => [
+            'required',
+            'string',
+            'max:9',
+            Rule::unique('participants')->where(function ($query) use ($eventId) {
+                return $query->where('event_id', $eventId);
+            }),
+            ],
         ], [
             'email.unique' => 'Já existe uma inscrição com este email para este evento.',
+            'phone.unique' => 'Já existe uma inscrição com este telemóvel para este evento.',
         ]);
 
         
@@ -77,7 +87,7 @@ class ParticipantController extends Controller
 
         $participant->event = $event;
 
-        Mail::to($participant->email)->send(new ParticipantRegistered($participant));
+        //Mail::to($participant->email)->send(new ParticipantRegistered($participant));
 
         return redirect()->route('events.registration', ['id' => $event->id])->with('success', 'Inscrição feita com sucesso!');
         
@@ -94,10 +104,10 @@ class ParticipantController extends Controller
         ->when($search, fn($query) => $query->where('name', 'like', "%{$search}%"))
         ->get();
 
-        $csvData = "Nome,Email,Telemóvel,\n";
+        $csvData = "Nome,Email,Telemóvel,Status\n";
 
         foreach ($participants as $participant) {
-            $csvData .= "{$participant->name},{$participant->email},{$participant->phone}\n";
+            $csvData .= "{$participant->name},{$participant->email},{$participant->phone},{$participant->status}\n";
         }
 
         $filename = "participantes_evento_{$eventId}.csv";
@@ -114,8 +124,9 @@ class ParticipantController extends Controller
     $search = request('search');
 
     $participants = Participant::where('event_id', $eventId)
-        ->when($status, fn($query) => $query->where('status', $status))
-        ->when($search, fn($query) => $query->where('name', 'like', "%{$search}%"))
+        ->when($status === 'por confirmar', fn($query) => $query->where('status', 'por confirmar'))
+        ->when($status === 'confirmado', fn($query) => $query->where('status', 'confirmado'))
+        //->when($search ?? '' !== '', fn($query) => $query->where('name', 'like', "%{$search}%"))
         ->get();
 
     $pdf = Pdf::loadView('pdf.participants', [
@@ -127,4 +138,5 @@ class ParticipantController extends Controller
 }
 
     
+
 }
