@@ -18,7 +18,32 @@ const form = useForm({
     send_qr: false
 });
 
+const textareaRef = ref<HTMLTextAreaElement | null>(null);
 
+const insertAtCursor = (text: string) => {
+    const textarea = textareaRef.value;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const current = form.message;
+
+    form.message = current.substring(0, start) + text + current.substring(end);
+
+    nextTick(() => {
+        textarea.setSelectionRange(start + text.length, start + text.length);
+        textarea.focus();
+    });
+};
+
+const dynamicFields = [
+    { label: 'Nome do participante', value: '{{ nome }}' },
+    { label: 'Email', value: '{{ email }}' },
+    { label: 'Evento', value: '{{ evento }}' },
+    { label: 'Data', value: '{{ data }}' },
+    { label: 'Hora', value: '{{ hora }}' },
+    { label: 'Local', value: '{{ local }}' },
+];
 
 const sendMessage = () => {
     // Limpa erros anteriores
@@ -56,27 +81,15 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-const formatDate = (date: string | undefined): string => {
-    if (!date) return '';
-    const [year, month, day] = date.split('-');
-    return `${day}-${month}-${year}`;
-};
-const formatTime = (time: string | undefined): string => {
-    if (!time) return '';
-    const [hour, minute] = time.split(':');
-    return `${hour}:${minute}`;
-};
-const formattedTime = formatTime(props.event?.start_time);
 
-const formattedStartDate = formatDate(props.event?.start_date);
 
 
 const defaultMessages = [
-    `Don't forget to join us for the event "${props.event?.name}" on ${formattedStartDate} at ${formattedTime} at ${props.event?.location}.`,
-    `Mark your calendar! The event "${props.event?.name}" is happening on ${formattedStartDate} at ${formattedTime} at ${props.event?.location}.`,
-    `We are excited to see you at "${props.event?.name}" on ${formattedStartDate} at ${formattedTime} at ${props.event?.location}.`,
-    `Reminder: "${props.event?.name}" is just around the corner! Join us on ${formattedStartDate} at ${formattedTime} at ${props.event?.location}.`,
-    `Get ready for "${props.event?.name}"! It's happening on ${formattedStartDate} at ${formattedTime} at ${props.event?.location}.`
+    `Hello {{ nome }}, don't forget to join us for the event "{{ evento }}" on {{ data }} at {{ hora }} at {{ local }}.`,
+    `Hi {{ nome }}, mark your calendar! The event "{{ evento }}" is happening on {{ data }} at {{ hora }} at {{ local }}.`,
+    `Dear {{ nome }}, we are excited to see you at "{{ evento }}" on {{ data }} at {{ hora }} at {{ local }}.`,
+    `Hello {{ nome }}, reminder: "{{ evento }}" is just around the corner! Join us on {{ data }} at {{ hora }} at {{ local }}.`,
+    `Hi {{ nome }}, get ready for "{{ evento }}"! It's happening on {{ data }} at {{ hora }} at {{ local }}.`
 ];
 
 
@@ -148,20 +161,33 @@ const cycleMessage = () => {
                     <label class="text-gray-700 font-medium">Include QR Code in the email</label>
                 </div>
 
+            
                 <!-- Mensagem personalizada -->
                 <div>
                     <label class="block text-gray-700 font-medium mb-2">📝 Custom Message</label>
+
+                    <!-- Campos Dinâmicos -->
+                    <div class="flex flex-wrap gap-2 mb-3">
+                        <span v-for="field in dynamicFields" :key="field.value" @click="insertAtCursor(field.value)"
+                            class="cursor-pointer bg-blue-100 text-blue-700 px-3 py-1 rounded-full hover:bg-blue-200 text-sm font-medium transition">
+                            ➕ {{ field.label }}
+                        </span>
+                    </div>
+
                     <div class="flex justify-end">
                         <button @click="cycleMessage"
                             class="bg-gray-200 text-gray-700 py-1 px-4 rounded-full hover:bg-gray-300 font-medium transition">
                             🔄 Change Message
                         </button>
                     </div>
-                    <textarea v-model="form.message"
+
+                    <textarea ref="textareaRef" v-model="form.message"
                         class="w-full p-3 border border-gray-300 rounded-xl mt-2 shadow-sm focus:ring focus:ring-blue-200"
                         rows="4" placeholder="Type your message..."></textarea>
+
                     <div v-if="form.errors.message" class="text-red-500 text-sm mt-1">{{ form.errors.message }}</div>
                 </div>
+
 
                 <!-- Botão -->
                 <div>

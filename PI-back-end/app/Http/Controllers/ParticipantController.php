@@ -87,7 +87,7 @@ class ParticipantController extends Controller
 
         $participant->event = $event;
 
-        //Mail::to($participant->email)->send(new ParticipantRegistered($participant));
+        Mail::to($participant->email)->send(new ParticipantRegistered($participant));
 
         return redirect()->route('events.registration', ['id' => $event->id])->with('success', 'Inscrição feita com sucesso!');
         

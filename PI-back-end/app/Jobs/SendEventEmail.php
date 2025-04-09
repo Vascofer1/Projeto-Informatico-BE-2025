@@ -31,6 +31,20 @@ class SendEventEmail implements ShouldQueue
 
     }
 
+    private function parseMessage($message, $event, $participant)
+    {
+        $placeholders = [
+            '{{ nome }}' => $participant->name,
+            '{{ email }}' => $participant->email,
+            '{{ evento }}' => $event->name,
+            '{{ data }}' => \Carbon\Carbon::parse($event->start_date)->format('d-m-Y'),
+            '{{ hora }}' => \Carbon\Carbon::parse($event->start_time)->format('H:i'),
+            '{{ local }}' => $event->location,
+        ];
+
+        return strtr($message, $placeholders);
+    }
+
     public function handle()
     {
         \Log::info("Job SendEventEmail está a ser processado!", [
@@ -41,11 +55,15 @@ class SendEventEmail implements ShouldQueue
     
         foreach ($this->event->participants as $participant) {
             \Log::info("A enviar email para: " . $participant->email);
-    
+            $finalMessage = $this->parseMessage($this->messageContent, $this->event, $participant);
+
             Mail::to($participant->email)->send(
-                new EventNotification($this->event, $this->messageContent, $participant, $this->sendQr)
+                new EventNotification($this->event, $finalMessage, $participant, $this->sendQr)
             );
         }
     }
+
+    
+
 }
 

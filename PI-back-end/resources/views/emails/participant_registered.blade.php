@@ -15,5 +15,7 @@
 
     <br>
     <p>Thank you and see you soon!</p>
+    <p>Eventify</p>
+<p>Note: This is an automated message, please do not reply.</p>
 </body>
 </html>
