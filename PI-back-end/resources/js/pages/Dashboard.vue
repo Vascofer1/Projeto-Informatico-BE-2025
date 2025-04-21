@@ -40,8 +40,6 @@ function formatEventDate(event: any) {
 </script>
 
 <template>
-  <Head title="Dashboard" />
-
   <AppLayout :breadcrumbs="breadcrumbs">
     <div class="p-6 bg-gray-100 dark:bg-gray-900 min-h-screen">
       <h1 class="text-3xl font-bold mb-6 text-center text-gray-900 dark:text-white">
@@ -63,7 +61,7 @@ function formatEventDate(event: any) {
           <ul v-else class="divide-y divide-gray-300 dark:divide-gray-700">
             <template v-for="event in props.recentEvents" :key="event.id">
               <li class="py-2">
-                <Link :href="`/events/${event.id}`" class="block text-lg font-bold text-gray-900 dark:text-white">
+                <Link :href="`/events/${event.id}`" class="block text-lg font-bold text-gray-800 dark:text-white">
                   {{ event.name }}
                 </Link>
                 <div class="mt-1">

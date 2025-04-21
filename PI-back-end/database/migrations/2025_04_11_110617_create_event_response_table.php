@@ -11,12 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('event_response', function (Blueprint $table) {
+        Schema::create('event_responses', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('participant_id')->constrained()->onDelete('cascade');
-            $table->foreignId('event_question_id')->constrained('event_question')->onDelete('cascade');
+            $table->foreignId('event_question_id')->constrained('event_questions')->onDelete('cascade');
             $table->text('response')->nullable();
-            $table->boolean('answered')->default(false);
             $table->timestamps();
         });
     }

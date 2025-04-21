@@ -6,8 +6,7 @@ use App\Models\Event;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
+use App\Models\Participant;
 
 
 class EventController extends Controller
@@ -23,10 +22,13 @@ class EventController extends Controller
 
     if ($request->has('search')) {
         $search = $request->input('search');
-        $query->whereRaw('LOWER(name) LIKE ?', ["%".strtolower($search)."%"]);
+        $query->whereRaw('LOWER(name) LIKE ?', ["%" . strtolower($search) . "%"]);
     }
 
-    $events = $query->paginate(12)->withQueryString();
+    $events = $query->paginate(16)->through(function ($event) {
+        $event->has_participants = Participant::where('event_id', $event->id)->exists();
+        return $event;
+    })->withQueryString();
 
     return Inertia::render('Events/Index', ['events' => $events]);
 }
@@ -158,12 +160,13 @@ protected function updateEventStatus()
         $event->loadCount('participants'); // Adiciona participants_count ao evento
         
         $event->loadCount([
-            'participants as confirmed_count' => fn($q) => $q->where('status', 'confirmado'),
-            'participants as waiting_count' => fn($q) => $q->where('status', 'por confirmar'),
+            'participants as confirmed_count' => fn($q) => $q->where('status', 'Confirmed'),
+            'participants as waiting_count' => fn($q) => $q->where('status', 'Unconfirmed'),
         ]);
 
         return Inertia::render('Events/Show', [
-            'event' => $event
+            'event' => $event,
+            'formExists' => $event->questions()->exists(),
         ]);
     }
 
@@ -241,8 +244,19 @@ protected function updateEventStatus()
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
-    {
-        //
+    public function destroy($id)
+{
+    $event = Event::findOrFail($id);
+
+    // Verifica se existem participantes associados ao evento
+    $hasParticipants = Participant::where('event_id', $event->id)->exists();
+
+    if ($hasParticipants) {
+        return redirect()->route('events.index')->withErrors(['event' => 'Não é possível eliminar um evento com participantes.']);
     }
+
+    $event->delete();
+
+    return redirect()->route('events.index')->with('success', 'Evento eliminado com sucesso!');
+}
 }

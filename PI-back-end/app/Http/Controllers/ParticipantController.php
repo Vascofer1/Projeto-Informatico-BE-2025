@@ -54,7 +54,7 @@ class ParticipantController extends Controller
             'phone' => [
             'required',
             'string',
-            'max:9',
+            'regex:/^\d{9}$/',
             Rule::unique('participants')->where(function ($query) use ($eventId) {
                 return $query->where('event_id', $eventId);
             }),
