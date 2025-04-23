@@ -21,8 +21,8 @@ class ParticipantController extends Controller
     $event = Event::findOrFail($id);
     $participants = Participant::query()
         ->where('event_id', $id)
-        ->when($request->status === 'por confirmar', fn ($q) => $q->where('status', 'por confirmar'))
-        ->when($request->status === 'confirmado', fn ($q) => $q->where('status', 'confirmado'))
+        ->when($request->status === 'Unconfirmed', fn ($q) => $q->where('status', 'Unconfirmed'))
+        ->when($request->status === 'Confirmed', fn ($q) => $q->where('status', 'Confirmed'))
         ->when($request->search, fn ($q, $search) => $q->where('name', 'like', "%{$search}%"))
         ->paginate(7)
         ->withQueryString();
@@ -83,6 +83,7 @@ class ParticipantController extends Controller
 
           $participant->update([
             'qrcode' => $qrCodePath,
+            'code' => $codigoUnico,
         ]);
 
         $participant->event = $event;
@@ -124,8 +125,8 @@ class ParticipantController extends Controller
     $search = request('search');
 
     $participants = Participant::where('event_id', $eventId)
-        ->when($status === 'por confirmar', fn($query) => $query->where('status', 'por confirmar'))
-        ->when($status === 'confirmado', fn($query) => $query->where('status', 'confirmado'))
+        ->when($status === 'Unconfirmed', fn($query) => $query->where('status', 'Unconfirmed'))
+        ->when($status === 'Confirmed', fn($query) => $query->where('status', 'Confirmed'))
         //->when($search ?? '' !== '', fn($query) => $query->where('name', 'like', "%{$search}%"))
         ->get();
 

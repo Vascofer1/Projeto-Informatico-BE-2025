@@ -150,8 +150,9 @@ console.log(props.event)
                                 class="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-lg text-base shadow transition">
                           ✏️ Edit Event
                         </button>
-                        <Link :href="`/messages/create/${props.event.id}`"
-                              class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg text-base shadow transition">
+                        <Link v-if="event.participants_count > 0" 
+                            :href="`/messages/create/${props.event.id}`"
+                            class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg text-base shadow transition">
                           📩 Schedule Message
                         </Link>
                     </div>

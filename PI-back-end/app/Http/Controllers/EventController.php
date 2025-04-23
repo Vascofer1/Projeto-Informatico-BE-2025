@@ -158,8 +158,8 @@ protected function updateEventStatus()
         $event->loadCount('participants'); // Adiciona participants_count ao evento
         
         $event->loadCount([
-            'participants as confirmed_count' => fn($q) => $q->where('status', 'confirmado'),
-            'participants as waiting_count' => fn($q) => $q->where('status', 'por confirmar'),
+            'participants as confirmed_count' => fn($q) => $q->where('status', 'Confirmed'),
+            'participants as waiting_count' => fn($q) => $q->where('status', 'Unconfirmed'),
         ]);
 
         return Inertia::render('Events/Show', [
