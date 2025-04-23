@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\ParticipantController;
-use App\Exports\ParticipantsExport;
+use App\Http\Controllers\EventResponsesController;
 use Maatwebsite\Excel\Facades\Excel;
 
 use App\Mail\ParticipantRegistered;
@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Mail;
 use App\Models\Participant;
 use App\Models\Event;
 use App\Http\Controllers\MessageController;
+use App\Http\Controllers\EventQuestionsController;
+use App\Http\Controllers\QuestionController;
 
 /*Route::get('/', function () {
     return Inertia::render('Welcome');
@@ -31,6 +33,17 @@ Route::post('/events', [EventController::class, 'store'])->name('events.store');
 Route::get('/events/{event}', [EventController::class, 'show'])->name('events.show');
 Route::get('/events/{event}/edit', [EventController::class, 'edit'])->name('events.edit');
 Route::put('/events/{event}', [EventController::class, 'update'])->name('events.update');
+Route::delete('/events/{event}', [EventController::class, 'destroy'])->name('events.destroy');
+
+Route::get('/events/{event}/questions', [QuestionController::class, 'index'])->name('events.questions.index');
+Route::post('/events/{event}/questions', [QuestionController::class, 'store']);
+
+Route::get('/events/{id}/questions', [EventQuestionsController::class, 'create'])->name('events.questions.create');
+Route::get('/events/{event}/form', [EventQuestionsController::class, 'show'])->name('events.form.show');
+Route::post('/events/{event}/form', [EventQuestionsController::class, 'store'])->name('events.form.store');
+
+Route::post('/events/{event}/submit-form', [EventResponsesController::class, 'store']);
+
 
 Route::get('/inscricao/{id}', [EventController::class, 'showRegistrationPage'])->name('events.registration');
 Route::post('/inscricao/{id}', [ParticipantController::class, 'store'])->name('participants.store');

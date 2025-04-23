@@ -3,22 +3,30 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Event_questions;
+use App\Models\EventQuestion;
 
 class Question extends Model
 {
     //
     protected $fillable = [
-        'question',
+        'name',
         'description',
-        'question_options',
+        'options',
+        'category',
     ];
     protected $casts = [
-        'question_options' => 'array',
+        'options' => 'array',
     ];
 
-    public function event_questions()
+    public function events()
     {
-        return $this->hasMany(Event_questions::class);
+        return $this->belongsToMany(Event::class, 'event_questions')
+            ->withPivot('mandatory')
+            ->withTimestamps();
+    }
+
+    public function event_question()
+    {
+        return $this->hasMany(EventQuestion::class);
     }
 }

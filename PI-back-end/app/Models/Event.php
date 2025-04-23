@@ -1,15 +1,18 @@
 <?php
 
 namespace App\Models;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Participant;
-use App\Models\Event_questions;
+use App\Models\EventQuestion;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Event extends Model
 {
-    
+
     use HasFactory;
+    use SoftDeletes;
 
     protected $fillable = [
         'name',
@@ -26,13 +29,16 @@ class Event extends Model
 
     ];
 
+    public function questions()
+    {
+        return $this->belongsToMany(Question::class, 'event_questions')
+            ->withPivot('mandatory')
+            ->withTimestamps();
+    }
+
     public function participants()
     {
         return $this->hasMany(Participant::class);
     }
 
-    public function event_questions()
-    {
-        return $this->hasMany(Event_questions::class);
-    }
 }

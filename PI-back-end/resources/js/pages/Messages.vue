@@ -79,7 +79,7 @@ const sendMessage = () => {
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: `Messages`,
+        title: `Events / ${props.event.name} /Messages`,
         href: `/messages/create`,
     },
 ];

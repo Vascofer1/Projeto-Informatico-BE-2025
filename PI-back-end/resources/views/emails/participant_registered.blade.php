@@ -5,7 +5,9 @@
     <title>Registration Confirmation</title>
 </head>
 <body>
+
     <h1>Hello , {{ $participant->name }}!</h1>
+
 
     <p>Thank you for registering for the event <strong>{{ $event->name }}</strong>.</p>
 

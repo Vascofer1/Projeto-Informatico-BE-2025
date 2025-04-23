@@ -138,18 +138,21 @@ const submitForm = () => {
 
           <div v-if="isSameDay">
             <p class="text-gray-600">Date: <span class="font-bold">{{ formattedStartDate }}</span></p>
-            <p class="text-gray-600">Time: <span class="font-bold">{{ formattedStartTime }} - {{ formattedEndTime }}</span></p>
+            <p class="text-gray-600">Time: <span class="font-bold">{{ formattedStartTime }} - {{ formattedEndTime
+                }}</span></p>
           </div>
 
           <div v-else>
-            <p class="text-gray-600">Start: <span class="font-bold">{{ formattedStartDate }} {{ formattedStartTime }}</span></p>
-            <p class="text-gray-600">End: <span class="font-bold">{{ formattedEndDate }} {{ formattedEndTime }}</span></p>
+            <p class="text-gray-600">Start: <span class="font-bold">{{ formattedStartDate }} {{ formattedStartTime
+                }}</span></p>
+            <p class="text-gray-600">End: <span class="font-bold">{{ formattedEndDate }} {{ formattedEndTime }}</span>
+            </p>
           </div>
 
           <p class="text-gray-600">Duration: <span class="font-bold">{{ duration }}</span></p>
           <p class="text-gray-600">Location: <span class="font-bold">{{ props.event.location }}</span></p>
-          <p class="text-gray-600">
-            Description: 
+          <p class="text-gray-600 text-justify">
+            Description:
             <span class="font-bold">
               {{ props.event.description ? props.event.description : "There's nothing about this event yet. Stay tuned for more information!!" }}
             </span>
@@ -164,14 +167,17 @@ const submitForm = () => {
       </div>
 
       <br>
-      <form v-if="!eventHasStarted" @submit.prevent="submitForm" class="space-y-4 mt-6" >
-        <input v-model="formData.name" placeholder="Name" class="border p-2 w-full" required />
+      <form v-if="!eventHasStarted" @submit.prevent="submitForm" class="space-y-4 mt-6">
+        <input v-model="formData.name" placeholder="Name" class="border p-2 w-full text-black dark:text-black"
+          required />
         <p v-if="errors.name" class="text-red-500 text-sm">{{ errors.name }}</p>
 
-        <input v-model="formData.email" type="email" placeholder="Email" class="border p-2 w-full" required />
+        <input v-model="formData.email" type="email" placeholder="Email"
+          class="border p-2 w-full text-black dark:text-black" required />
         <p v-if="errors.email" class="text-red-500 text-sm">{{ errors.email }}</p>
 
-        <input v-model="formData.phone" type="tel" placeholder="Phone Number" class="border p-2 w-full" required />
+        <input v-model="formData.phone" type="tel" placeholder="Phone Number"
+          class="border p-2 w-full text-black dark:text-black" required />
         <p v-if="errors.phone" class="text-red-500 text-sm">{{ errors.phone }}</p>
 
         <div class="flex justify-center">
@@ -179,10 +185,12 @@ const submitForm = () => {
         </div>
 
         <p class="text-center text-gray-600 mt-4">
-          Don't miss this unique opportunity!</p>
+          Don't miss this unique opportunity!
+        </p>
       </form>
+
       <p v-else class="text-center text-red-600 text-2xl font-bold mt-8">
-        Sorry, this event has already started. Registration is closed.
+        Sorry, registration is already closed.
       </p>
     </div>
   </div>
