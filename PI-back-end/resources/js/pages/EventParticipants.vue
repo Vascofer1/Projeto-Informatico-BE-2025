@@ -72,23 +72,23 @@ function onStatusChange() {
         v-model="searchQuery" 
         @input="onSearch" 
         type="text" 
-        placeholder="Pesquisa participantes"
+        placeholder="Search participants..."
         class="w-full p-2 border rounded-lg bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-800 dark:text-white"
       />
       <br><br>
 
       <div class="mb-4">
         <label for="status" class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-          Filtrar por estado:
+          Filter by Status
         </label>
         <select 
           id="status" 
           v-model="selectedStatus" 
           @change="onStatusChange" 
           class="p-2 border rounded w-full sm:w-64 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-800 dark:text-white">
-          <option value="">Todos</option>
-          <option value="confirmado">Confirmados</option>
-          <option value="por confirmar">Por Confirmar</option>
+          <option value="">All</option>
+          <option value="Confirmed">Confirmed</option>
+          <option value="Unconfirmed">Unconfirmed</option>
         </select>
       </div>
 
@@ -98,13 +98,13 @@ function onStatusChange() {
           <thead class="bg-gray-100 dark:bg-gray-700">
             <tr>
               <th scope="col" class="px-6 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-200">
-                Nome
+                Name
               </th>
               <th scope="col" class="px-6 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-200">
                 Email
               </th>
               <th scope="col" class="px-6 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-200">
-                Telefone
+                Cell phone
               </th>
               <th scope="col" class="px-6 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-200">
                 Status
@@ -128,9 +128,9 @@ function onStatusChange() {
               <td 
                 class="px-6 py-4 text-sm"
                 :class="{
-                  'text-green-600 dark:text-green-400': participant.status === 'confirmado',
-                  'text-red-600 dark:text-red-400': participant.status === 'por confirmar',
-                  'text-gray-600 dark:text-gray-300': participant.status !== 'confirmado' && participant.status !== 'por confirmar'
+                  'text-green-600 dark:text-green-400': participant.status === 'Confirmed',
+                  'text-red-600 dark:text-red-400': participant.status === 'Unconfirmed', 
+                  'text-gray-600 dark:text-gray-300': participant.status !== 'Confirmed' && participant.status !== 'Unconfirmed'
                 }">
                 {{ participant.status }}
               </td>

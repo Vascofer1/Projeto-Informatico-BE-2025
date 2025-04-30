@@ -46,32 +46,35 @@ const dynamicFields = [
 ];
 
 const sendMessage = () => {
-    // Limpa erros anteriores
-    form.clearErrors();
+  // Limpa erros anteriores
+  form.clearErrors();
 
-    // Validação frontend
-    const errors: Record<string, string> = {};
+  // Validação frontend
+  const errors: Record<string, string> = {};
 
-    if (!form.date) errors.date = 'A data é obrigatória.';
-    if (!form.time) errors.time = 'A hora é obrigatória.';
-    if (!form.message) errors.message = 'A mensagem é obrigatória.';
-    if (!form.type) errors.type = 'O tipo de mensagem é obrigatório.';
+  if (!form.date) errors.date = 'A data é obrigatória.';
+  if (!form.time) errors.time = 'A hora é obrigatória.';
+  if (!form.message) errors.message = 'A mensagem é obrigatória.';
+  if (!form.type) errors.type = 'O tipo de mensagem é obrigatório.';
 
-    // Se houver erros, mostra e não envia
-    if (Object.keys(errors).length > 0) {
-        form.setError(errors);
-        return;
+  // Se houver erros, mostra e não envia
+  if (Object.keys(errors).length > 0) {
+    form.setError(errors);
+    return;
+  }
+
+  // Combina a data e hora para enviar ao backend
+  form.start_time = `${form.date} ${form.time}:00`;
+
+  // Define a rota com base no tipo de mensagem
+  const route = form.type === 'whatsapp' ? '/schedule-whatsapp' : '/schedule-email';
+
+  form.post(route, {
+    preserveScroll: true,
+    onSuccess: () => {
+      form.reset();
     }
-
-    // Combina a data e hora para enviar ao backend
-    form.start_time = `${form.date} ${form.time}:00`;
-
-    form.post('/schedule-email', {
-        preserveScroll: true,
-        onSuccess: () => {
-            form.reset();
-        }
-    });
+  });
 };
 
 const breadcrumbs: BreadcrumbItem[] = [

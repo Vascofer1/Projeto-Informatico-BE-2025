@@ -63,6 +63,7 @@ console.log(props.event)
 </script>
 
 <template>
+
   <AppLayout :breadcrumbs="breadcrumbs">
     <div class="p-6 bg-gray-100 dark:bg-gray-900 min-h-screen space-y-8">
       <!-- Header Section -->
@@ -157,6 +158,7 @@ console.log(props.event)
             class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg text-center flex items-center justify-center gap-2">
             <Users class="w-5 h-5" /> View Participants
           </Link>
+
 
           <Link v-if="event.status === 'Upcoming'" :href="`/messages/create/${event.id}`"
       class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg text-center flex items-center justify-center gap-2">

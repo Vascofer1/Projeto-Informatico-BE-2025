@@ -78,6 +78,8 @@ Route::get('/test-email', function () {
 Route::get('/messages/create/{event_id}', [MessageController::class, 'create'])->name('messages.create');
 
 Route::post('/schedule-email', [MessageController::class, 'scheduleEmail']);
+Route::post('/schedule-whatsapp', [MessageController::class, 'scheduleWhatsApp']);
+Route::get('/test-whatsapp', [MessageController::class, 'sendWhatsAppMessage']);
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
