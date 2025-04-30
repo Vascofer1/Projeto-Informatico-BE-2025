@@ -158,10 +158,10 @@ console.log(props.event)
             <Users class="w-5 h-5" /> View Participants
           </Link>
 
-          <Link :href="`/messages/create/${event.id}`"
-            class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg text-center flex items-center justify-center gap-2">
-            <Mail class="w-5 h-5" /> Schedule Message
-          </Link>
+          <Link v-if="event.status === 'Upcoming'" :href="`/messages/create/${event.id}`"
+      class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg text-center flex items-center justify-center gap-2">
+  <Mail class="w-5 h-5" /> Schedule Message
+</Link>
         </div>
       </div>
 

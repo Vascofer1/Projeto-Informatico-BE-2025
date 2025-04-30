@@ -18,6 +18,12 @@ class MessageController extends Controller
     public function create($eventId)
     {
         $event = Event::find($eventId);
+        if (!$event) {
+            return redirect()->back()->with('error', 'Event not found.');
+        }
+        if ($event->status !== 'Upcoming') {
+            return redirect()->back()->with('error', 'Not allowed to send messages for this event.');
+        }
         
         return Inertia::render('Messages', [
             'event' => $event

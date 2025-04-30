@@ -17,6 +17,7 @@ return new class extends Migration
             $table->text('description');
             $table->json('options')->nullable();
             $table->string('category')->nullable();
+            $table->boolean('predefined')->default(false);
             $table->timestamps();
         });
     }
