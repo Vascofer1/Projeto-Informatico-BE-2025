@@ -44,6 +44,7 @@ class QuestionController extends Controller
                     'description' => $q->description,
                     'options' => $q->options ?? [],
                     'category' => $q->category,
+                    'predefined' => $q->predefined,
                 ]),
         ]);
     }
@@ -66,6 +67,7 @@ class QuestionController extends Controller
             'description' => 'nullable|string',
             'options' => 'nullable|array',
             'category' => 'nullable|in:sports,health,tech',
+            'predefined' => 'boolean',
         ]);
 
         $question = Question::create([
@@ -73,6 +75,7 @@ class QuestionController extends Controller
             'description' => $validated['description'] ?? null,
             'options' => $validated['options'] ?? [],
             'category' => $validated['category'] ?? null,
+            'predefined' => $request->input('predefined', false),
         ]);
 
         return response()->json($question, 201);
