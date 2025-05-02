@@ -6,7 +6,7 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\ParticipantController;
 use App\Http\Controllers\EventResponsesController;
 use Maatwebsite\Excel\Facades\Excel;
-
+use App\Http\Controllers\ScheduledEmailController;
 use App\Mail\ParticipantRegistered;
 use Illuminate\Support\Facades\Mail;
 use App\Models\Participant;
@@ -54,32 +54,18 @@ Route::get('/eventos/{event}/participantes/export-csv', [ParticipantController::
 
 Route::get('/eventos/{event}/participantes/export-pdf', [ParticipantController::class, 'exportpdf']);
 
-Route::get('/test-email', function () {
-    // Simulação do evento
-    $event = new Event([
-        'name' => 'Laravel Workshop',
-        'location' => 'Lisboa',
-        'date' => '2025-04-15',
-    ]);
-
-    // Simulação do participante e associação manual ao evento
-    $participant = new Participant([
-        'name' => 'John Doe',
-        'email' => 'johndoe@example.com',
-    ]);
-    $participant->event = $event; // adicionamos o evento manualmente
-
-    // Enviar o email
-    Mail::to($participant->email)->send(new ParticipantRegistered($participant));
-
-    return 'Email enviado com sucesso!';
-});
 
 Route::get('/messages/create/{event_id}', [MessageController::class, 'create'])->name('messages.create');
 
 Route::post('/schedule-email', [MessageController::class, 'scheduleEmail']);
 Route::post('/schedule-whatsapp', [MessageController::class, 'scheduleWhatsApp']);
 Route::get('/test-whatsapp', [MessageController::class, 'sendWhatsAppMessage']);
+
+
+Route::get('/scheduled-emails', [ScheduledEmailController::class, 'index'])
+->name('scheduled-emails.index');
+Route::delete('/scheduled-emails/{id}', [ScheduledEmailController::class, 'destroy'])
+->name('scheduled-emails.destroy');
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

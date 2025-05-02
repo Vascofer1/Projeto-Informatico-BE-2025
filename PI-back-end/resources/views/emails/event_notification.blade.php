@@ -11,10 +11,11 @@
 <p>{{ $messageContent ?? 'Conteúdo da mensagem não disponível.' }}</p>
 
 
-@if($sendQr) <!-- Verifica se o QR Code não está vazio -->
+@if($sendQr)
     <p>Here is your QR Code for the event:</p>
-    {!! $qrCodeSvg !!} <!-- Renderiza o SVG diretamente -->
+    <img src="{{ $message->embed(public_path('storage/qrcodes/' . $participant->id . '.png')) }}">
 @endif
+
 
 
 <p>Best regards,</p>  

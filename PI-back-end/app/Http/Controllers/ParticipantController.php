@@ -76,8 +76,8 @@ class ParticipantController extends Controller
         $codigoUnico = 'PART-' . $participant->id . '-' . Str::random(8);
         
         // Gerar QR Code como SVG
-        $qrCodePath = 'qrcodes/' . $participant->id . '.svg';
-        QrCode::format('svg')
+        $qrCodePath = 'qrcodes/' . $participant->id . '.png';
+        QrCode::format('png')
           ->size(300)
           ->generate($codigoUnico, storage_path('app/public/' . $qrCodePath));
 
