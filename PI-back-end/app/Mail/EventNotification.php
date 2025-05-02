@@ -24,9 +24,10 @@ class EventNotification extends Mailable
     use Queueable, SerializesModels;
     public $event;
     public $messageContent;
-    public $qrCodeSvg;
     public $participant;
     public $sendQr;
+    public $participant_id;
+
 
     /**
      * Create a new message instance.
@@ -37,6 +38,8 @@ class EventNotification extends Mailable
         $this->messageContent = $messageContent;
         $this->participant = $participant;
         $this->sendQr = $sendQr;
+        $this->participant_id = $participant->id;
+        
        
     }
 
@@ -55,18 +58,14 @@ class EventNotification extends Mailable
      */
     public function content(): Content
     {   
-        if($this->sendQr){
-            $qrCodePath = storage_path("app/public/qrcodes/{$this->participant->id}.svg");
-            $this->qrCodeSvg = file_get_contents($qrCodePath);
-        }
         
         return new Content(
             view: 'emails.event_notification',
             with: [
                 'event' => $this->event,
                 'messageContent' => $this->messageContent,
-                'qrCodeSvg' => $this->qrCodeSvg ?? null,
                 'sendQr' => $this->sendQr,
+                'participant_id' => $this->participant_id,
             ]
         );
     }

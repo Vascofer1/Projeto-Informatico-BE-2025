@@ -26,7 +26,7 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: 'Messages',
-        href: '/messages/create',
+        href: '/scheduled-emails',
         icon: MessagesSquare,
     },
 ];
