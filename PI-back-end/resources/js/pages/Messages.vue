@@ -43,6 +43,7 @@ const dynamicFields = [
     { label: 'Data', value: '{{ data }}' },
     { label: 'Hora', value: '{{ hora }}' },
     { label: 'Local', value: '{{ local }}' },
+    { label: 'Link do formulario', value: '{{ link_formulario }}' },
 ];
 
 const sendMessage = () => {

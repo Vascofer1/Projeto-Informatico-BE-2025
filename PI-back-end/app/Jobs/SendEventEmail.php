@@ -40,6 +40,7 @@ class SendEventEmail implements ShouldQueue
             '{{ data }}' => \Carbon\Carbon::parse($event->start_date)->format('d-m-Y'),
             '{{ hora }}' => \Carbon\Carbon::parse($event->start_time)->format('H:i'),
             '{{ local }}' => $event->location,
+            '{{ link_formulario }}' => url('events/' . $event->id . '/form'),
         ];
 
         return strtr($message, $placeholders);
