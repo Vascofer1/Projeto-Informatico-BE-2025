@@ -38,3 +38,8 @@ Route::post('/mobile/check-login', function (Request $request) {
         'user' => $user->only(['id', 'name', 'email']), // Retorna dados não sensíveis
     ]);
 });
+
+
+//ver um participante 
+Route::get('/participantes/{id}', [InscricaoController::class, 'verParticipante']);
+
