@@ -11,7 +11,13 @@ class EventController extends Controller
 {
     public function index()
     {
-        $eventosAtivos = Event::where('status', 'On going')->get();
+        $now = now();
+        $twoHoursLater = $now->copy()->addHours(2);
+
+        $eventosAtivos = Event::where('status', 'Upcoming')
+            ->whereBetween('start_time', [$now, $twoHoursLater])
+            ->get();
+
         return response()->json($eventosAtivos);
     }
 

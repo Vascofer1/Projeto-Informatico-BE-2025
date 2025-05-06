@@ -82,4 +82,10 @@ class InscricaoController extends Controller
 
         return response()->json($participants);
     }
+
+    public function verParticipante($id)
+    {
+        $participant = Participant::findOrFail($id);
+        return response()->json($participant);
+    }
 }
