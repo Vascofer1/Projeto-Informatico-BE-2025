@@ -30,21 +30,21 @@ class EventResponsesController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request, $eventId)
-{
-    $validated = $request->validate([
-        'responses.*.event_question_id' => 'required|integer|exists:event_questions,id',
-        'responses.*.answer' => 'nullable|string',
-    ]);
-
-    foreach ($validated['responses'] as $resp) {
-        EventResponse::create([
-            'event_question_id' => $resp['event_question_id'],
-            'response' => $resp['answer'],
-        ]);
-    }
-
-    return back()->with('success', 'Respostas submetidas com sucesso.');
-}
+ {
+     $validated = $request->validate([
+         'responses.*.event_question_id' => 'required|integer|exists:event_questions,id',
+         'responses.*.answer' => 'nullable|string',
+     ]);
+ 
+     foreach ($validated['responses'] as $resp) {
+         EventResponse::create([
+             'event_question_id' => $resp['event_question_id'],
+             'response' => $resp['answer'],
+         ]);
+     }
+ 
+     return back()->with('success', 'Respostas submetidas com sucesso.');
+ }
 
     /**
      * Display the specified resource.

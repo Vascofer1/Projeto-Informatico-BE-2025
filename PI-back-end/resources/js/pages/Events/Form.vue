@@ -18,6 +18,7 @@ const props = defineProps({
       description: string
       options: string[]
       mandatory: boolean
+      event_question_id: number
     }[],
     required: true,
   },
@@ -52,7 +53,7 @@ const submitForm = () => {
   }
 
   const payload = props.questions.map((q) => ({
-    event_question_id: q.id,
+    event_question_id: q.event_question_id,
     answer: answers[q.id] ?? null,
   }))
 
@@ -88,6 +89,12 @@ const submitForm = () => {
         The responses are anonymous!! Please help us get to know the participants of our participants better.
       </p>
 
+      <div
+    v-if="formSubmitted"
+    class="text-center bg-green-100 border border-green-300 text-green-800 rounded-lg py-3 px-6 mb-6 shadow-md"
+  >
+    ✅ Form submitted successfully! Thank you for your participation.
+  </div>
       <form v-if="!eventHasStarted" @submit.prevent="submitForm" class="space-y-10">
         <div v-for="q in props.questions" :key="q.id"
           class="bg-white/90 rounded-xl shadow-sm p-4 sm:p-6 border border-gray-200">
@@ -119,12 +126,7 @@ const submitForm = () => {
             Submit Form
           </button>
         </div>
-        <div
-    v-if="formSubmitted"
-    class="text-center bg-green-100 border border-green-300 text-green-800 rounded-lg py-3 px-6 mb-6 shadow-md"
-  >
-    ✅ Form submitted successfully! Thank you for your participation.
-  </div>
+        
       </form>
       
 

@@ -21,7 +21,7 @@ class Question extends Model
     public function events()
     {
         return $this->belongsToMany(Event::class, 'event_questions')
-            ->withPivot('mandatory')
+            ->withPivot('id', 'mandatory')
             ->withTimestamps();
     }
 
