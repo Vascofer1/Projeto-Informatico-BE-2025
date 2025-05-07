@@ -21,8 +21,13 @@ class EventQuestion extends Model
         return $this->belongsTo(Event::class);
     }
 
-    public function questions()
+    public function question()
     {
-        return $this->belongsTo(Question::class);
+        return $this->belongsTo(Question::class, 'question_id');
+    }
+
+    public function eventResponses()
+    {
+        return $this->hasMany(EventResponse::class);
     }
 }

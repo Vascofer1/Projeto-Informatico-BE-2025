@@ -81,6 +81,7 @@ class EventQuestionsController extends Controller
             'description' => $q->description,
             'options' => $q->options ?? '[]',
             'mandatory' => $q->pivot->mandatory,
+            'event_question_id' => $q->pivot->id,
         ];
     });
 

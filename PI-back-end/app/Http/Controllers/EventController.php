@@ -7,6 +7,9 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Participant;
+use App\Models\EventQuestion;
+use App\Models\EventResponse;
+use App\Models\Question;
 
 
 class EventController extends Controller
@@ -157,19 +160,53 @@ protected function updateEventStatus()
     {
         $this->updateEventStatus();
 
-        $event->loadCount('participants'); // Adiciona participants_count ao evento
-        
+        $event->loadCount('participants');
+
         $event->loadCount([
             'participants as confirmed_count' => fn($q) => $q->where('status', 'Confirmed'),
             'participants as waiting_count' => fn($q) => $q->where('status', 'Unconfirmed'),
         ]);
 
-        return Inertia::render('Events/Show', [
-            'event' => $event,
-            'formExists' => $event->questions()->exists(),
-        ]);
-    }
+        $eventQuestions = EventQuestion::with('question')
+            ->where('event_id', $event->id)
+            ->get();
 
+            $chartData = [];
+
+            foreach ($eventQuestions as $eq) {
+                // get the question and its options from the event question
+                $question = Question::find($eq->question_id);
+                //$question = $eq->questions;
+                $question = $eq->question;
+            
+                if (!$question || !$question->options) continue;
+            
+                $options = $question->options; // <== já vem como array
+            
+                $counts = [];
+            
+                foreach ($options as $option) {
+                    $count = EventResponse::where('event_question_id', $eq->id)
+                        ->where('response', $option)
+                        ->count();
+            
+                    $counts[] = $count;
+                }
+        
+                // Adiciona o gráfico com labels e dados
+                $chartData[] = [
+                    'question' => $question->name,
+                    'labels' => $options,
+                    'data' => $counts
+                ];
+            }
+        
+            return Inertia::render('Events/Show', [
+                'event' => $event,
+                'formExists' => $event->questions()->exists(),
+                'chartData' => $chartData,
+            ]);
+        }
 
     public function edit(Event $event)
 {

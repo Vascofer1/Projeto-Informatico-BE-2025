@@ -1,10 +1,19 @@
 <script setup lang="ts">
-import { defineProps, computed } from "vue";
+import { defineProps, computed, onMounted, nextTick } from "vue";
 import { router } from "@inertiajs/vue3";
 import { Link } from "@inertiajs/vue3";
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { BreadcrumbItem } from '@/types';
 import { CheckCircle, Clock, MapPin, FileText, ClipboardList, PlusCircle, Users, Mail, Pencil, Tag } from 'lucide-vue-next';
+import { Chart, BarController, BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend, ArcElement, PieController } from 'chart.js'
+
+Chart.register(BarController, BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend, ArcElement, PieController);
+
+interface ChartDataItem {
+  question: string;
+  labels: string[];
+  data: number[];
+}
 
 interface Event {
   id: number;
@@ -25,7 +34,83 @@ interface Event {
   waiting_count?: number;
 }
 
-const props = defineProps<{ event: Event; formExists: boolean; }>();
+const props = defineProps<{ event: Event; formExists: boolean; chartData: ChartDataItem[] }>();
+
+onMounted(() => {
+  props.chartData.forEach((chart, index) => {
+    console.log("Dados para os gráficos:", props.chartData);
+    const ctx = document.getElementById(`chart-${index}`) as HTMLCanvasElement;
+
+    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+    const tickColor = isDark ? '#ffffff' : '#6b7280'
+    const gridColor = isDark ? '#374151' : '#e5e7eb'
+    
+    if (ctx) {
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: chart.labels,
+          datasets: [{
+            label: 'Frequency',
+            data: chart.data,
+            backgroundColor: chart.data.map((value) => {
+              if (value === 0) return '#ef4444';
+              if (value <= 2) return '#eab308';
+              if (value <= 5) return '#22c55e';
+              return '#06b6d4';
+            }),
+            borderRadius: 6,
+            barThickness: 40,
+          }]
+        },
+        options: {
+          responsive: true,
+          layout: {
+            padding: 20
+          },
+          plugins: {
+            legend: { display: false },
+            title: {
+              display: false
+            },
+            tooltip: {
+              backgroundColor: '#111827',
+              titleColor: '#fff',
+              bodyColor: '#d1d5db',
+              cornerRadius: 4
+            }
+          },
+          scales: {
+  y: {
+    beginAtZero: true,
+    ticks: {
+      stepSize: 1,
+      color: tickColor,
+      font: {
+        size: 14
+      }
+    },
+    grid: {
+      color: gridColor
+    }
+  },
+  x: {
+    ticks: {
+      color: tickColor,
+      font: {
+        size: 14
+      }
+    },
+    grid: {
+      display: false
+    }
+  }
+}
+        }
+      });
+    }
+  });
+});
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
@@ -34,7 +119,6 @@ const breadcrumbs: BreadcrumbItem[] = [
   },
 ];
 
-// Define cores do status dinamicamente
 const statusColors = computed(() => {
   switch (props.event.status) {
     case "Upcoming": return "bg-green-500";
@@ -49,21 +133,22 @@ const formatDate = (date: string | undefined): string => {
   const [year, month, day] = date.split('-');
   return `${day}-${month}-${year}`;
 };
+
 const formatTime = (time: string | undefined): string => {
   if (!time) return '';
   const [hour, minute] = time.split(':');
   return `${hour}:${minute}`;
 };
+
 const formattedTime = formatTime(props.event?.start_time);
 const formattedEndTime = formatTime(props.event?.end_time);
-
 const formattedStartDate = formatDate(props.event?.start_date);
 const formattedEndDate = formatDate(props.event?.end_date);
+
 console.log(props.event)
 </script>
 
 <template>
-
   <AppLayout :breadcrumbs="breadcrumbs">
     <div class="p-6 bg-gray-100 dark:bg-gray-900 min-h-screen space-y-8">
       <!-- Header Section -->
@@ -159,11 +244,10 @@ console.log(props.event)
             <Users class="w-5 h-5" /> View Participants
           </Link>
 
-
-          <Link v-if="event.status === 'Upcoming'" :href="`/messages/create/${event.id}`"
-      class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg text-center flex items-center justify-center gap-2">
-  <Mail class="w-5 h-5" /> Schedule Message
-</Link>
+          <Link :href="`/messages/create/${event.id}`"
+            class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg text-center flex items-center justify-center gap-2">
+            <Mail class="w-5 h-5" /> Schedule Message
+          </Link>
         </div>
       </div>
 
@@ -187,7 +271,19 @@ console.log(props.event)
             </div>
           </div>
         </div>
+        <br>
+
+        <div v-if="chartData.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+          <div v-for="(chart, index) in chartData" :key="index" class="bg-gray-100 dark:bg-gray-700 p-6 rounded-xl shadow-md">
+    <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">{{ chart.question }}</h3>
+    <canvas :id="`chart-${index}`" class="w-full max-w-xl mx-auto"></canvas>
+  </div>
+</div>
+
+<div v-else class="text-gray-600 dark:text-gray-300 mt-6">
+  No statistical data available for this event.
+</div>
       </div>
     </div>
   </AppLayout>
-</template>
+</template> 

@@ -32,7 +32,7 @@ class Event extends Model
     public function questions()
     {
         return $this->belongsToMany(Question::class, 'event_questions')
-            ->withPivot('mandatory')
+            ->withPivot('id', 'mandatory')
             ->withTimestamps();
     }
 
@@ -40,5 +40,10 @@ class Event extends Model
     {
         return $this->hasMany(Participant::class);
     }
+
+    public function eventQuestions()
+{
+    return $this->hasMany(EventQuestion::class);
+}
 
 }
