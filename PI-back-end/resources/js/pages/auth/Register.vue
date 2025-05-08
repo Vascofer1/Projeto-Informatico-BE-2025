@@ -7,6 +7,8 @@ import { Label } from '@/components/ui/label';
 import AuthBase from '@/layouts/AuthLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import { LoaderCircle } from 'lucide-vue-next';
+import AppLayout from '@/layouts/AppLayout.vue';
+import { type BreadcrumbItem } from '@/types';
 
 const form = useForm({
     name: '',
@@ -20,9 +22,17 @@ const submit = () => {
         onFinish: () => form.reset('password', 'password_confirmation'),
     });
 };
+
+const breadcrumbs: BreadcrumbItem[] = [
+  {
+    title: 'Create an account',
+    href: '/register',
+  },
+];
 </script>
 
 <template>
+    <AppLayout :breadcrumbs="breadcrumbs">
     <AuthBase title="Create an account" description="Enter your details below to create your account">
         <Head title="Register" />
 
@@ -74,10 +84,8 @@ const submit = () => {
                 </Button>
             </div>
 
-            <div class="text-center text-sm text-muted-foreground">
-                Already have an account?
-                <TextLink :href="route('login')" class="underline underline-offset-4" :tabindex="6">Log in</TextLink>
-            </div>
+            
         </form>
     </AuthBase>
+    </AppLayout>
 </template>
