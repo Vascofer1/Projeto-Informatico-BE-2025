@@ -39,6 +39,9 @@ return [
     'token' => env('TWILIO_AUTH_TOKEN'),
     'whatsapp_from' => env('TWILIO_WHATSAPP_FROM'),
     ],
+    'sendgrid' => [
+    'api_key' => env('SENDGRID_API_KEY'),
+    ],
 
 
 ];
