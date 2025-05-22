@@ -29,6 +29,11 @@ const mainNavItems: NavItem[] = [
         href: '/scheduled-emails',
         icon: MessagesSquare,
     },
+    {
+        title: 'Create Account',
+        href: '/register',
+        icon: BookOpen,
+    },
 ];
 
 const footerNavItems: NavItem[] = [
