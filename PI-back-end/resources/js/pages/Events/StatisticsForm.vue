@@ -143,7 +143,7 @@ const submitForm = () => {
   }, {
     onFinish: () => formProcessing.value = false,
     onSuccess: () => {
-      alert('Formulário atualizado com sucesso!')
+      alert('Form updated successfully!')
     }
   })
 }

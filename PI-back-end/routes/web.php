@@ -14,6 +14,7 @@ use App\Models\Event;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\EventQuestionsController;
 use App\Http\Controllers\QuestionController;
+use App\Http\Controllers\GlobalStatsController;
 
 /*Route::get('/', function () {
     return Inertia::render('Welcome');
@@ -49,6 +50,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/eventos/{event}/participantes/export-pdf', [ParticipantController::class, 'exportpdf']);
 
+    Route::get('/statistics', [GlobalStatsController::class, 'index'])->name('global.stats');
     
     Route::get('/messages/create/{event_id}', [MessageController::class, 'create'])->name('messages.create');
 

@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { defineProps, computed, onMounted, nextTick } from "vue";
+import { defineProps, computed, onMounted, ref, watch } from "vue";
 import { router } from "@inertiajs/vue3";
 import { Link } from "@inertiajs/vue3";
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { BreadcrumbItem } from '@/types';
 import { CheckCircle, Clock, MapPin, FileText, ClipboardList, PlusCircle, Users, Mail, Pencil, Tag } from 'lucide-vue-next';
-import { Chart, BarController, BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend, ArcElement, PieController } from 'chart.js'
+import { Chart, BarController, BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend, ArcElement, PieController } from 'chart.js';
 
 Chart.register(BarController, BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend, ArcElement, PieController);
 
@@ -36,78 +36,82 @@ interface Event {
 
 const props = defineProps<{ event: Event; formExists: boolean; chartData: ChartDataItem[] }>();
 
+const shownCharts = ref<boolean[]>(props.chartData.map(() => true));
+
+const charts: Ref<(Chart | null)[]> = ref([]);
+
+const createOrUpdateChart = (chartItem: ChartDataItem, index: number) => {
+  const ctx = document.getElementById(`chart-${index}`) as HTMLCanvasElement;
+  if (!ctx) return;
+
+  const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const tickColor = isDark ? '#ffffff' : '#6b7280';
+  const gridColor = isDark ? '#374151' : '#e5e7eb';
+
+  if (charts.value[index]) {
+    charts.value[index]?.destroy();
+  }
+
+  charts.value[index] = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: chartItem.labels,
+      datasets: [{
+        label: 'Frequency',
+        data: chartItem.data,
+        backgroundColor: chartItem.data.map((value) => {
+          if (value === 0) return '#ef4444';
+          if (value <= 2) return '#eab308';
+          if (value <= 5) return '#22c55e';
+          return '#06b6d4';
+        }),
+        borderRadius: 6,
+        barThickness: 40,
+      }]
+    },
+    options: {
+      responsive: true,
+      layout: { padding: 20 },
+      plugins: {
+        legend: { display: false },
+        title: { display: false },
+        tooltip: {
+          backgroundColor: '#111827',
+          titleColor: '#fff',
+          bodyColor: '#d1d5db',
+          cornerRadius: 4
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { stepSize: 1, color: tickColor, font: { size: 14 } },
+          grid: { color: gridColor }
+        },
+        x: {
+          ticks: { color: tickColor, font: { size: 14 } },
+          grid: { display: false }
+        }
+      }
+    }
+  });
+};
+
 onMounted(() => {
   props.chartData.forEach((chart, index) => {
-    console.log("Dados para os gráficos:", props.chartData);
-    const ctx = document.getElementById(`chart-${index}`) as HTMLCanvasElement;
+    if (shownCharts.value[index]) {
+      createOrUpdateChart(chart, index);
+    }
+  });
+});
 
-    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-    const tickColor = isDark ? '#ffffff' : '#6b7280'
-    const gridColor = isDark ? '#374151' : '#e5e7eb'
-    
-    if (ctx) {
-      new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: chart.labels,
-          datasets: [{
-            label: 'Frequency',
-            data: chart.data,
-            backgroundColor: chart.data.map((value) => {
-              if (value === 0) return '#ef4444';
-              if (value <= 2) return '#eab308';
-              if (value <= 5) return '#22c55e';
-              return '#06b6d4';
-            }),
-            borderRadius: 6,
-            barThickness: 40,
-          }]
-        },
-        options: {
-          responsive: true,
-          layout: {
-            padding: 20
-          },
-          plugins: {
-            legend: { display: false },
-            title: {
-              display: false
-            },
-            tooltip: {
-              backgroundColor: '#111827',
-              titleColor: '#fff',
-              bodyColor: '#d1d5db',
-              cornerRadius: 4
-            }
-          },
-          scales: {
-  y: {
-    beginAtZero: true,
-    ticks: {
-      stepSize: 1,
-      color: tickColor,
-      font: {
-        size: 14
-      }
-    },
-    grid: {
-      color: gridColor
-    }
-  },
-  x: {
-    ticks: {
-      color: tickColor,
-      font: {
-        size: 14
-      }
-    },
-    grid: {
-      display: false
-    }
-  }
-}
-        }
-      });
+watch(shownCharts, (newValues, oldValues) => {
+  newValues.forEach((show, index) => {
+    if (show && !oldValues[index]) {
+      nextTick(() => createOrUpdateChart(props.chartData[index], index));
+    } else if (!show && charts.value[index]) {
+      charts.value[index]?.destroy();
+      charts.value[index] = null;
     }
   });
 });
@@ -144,8 +148,6 @@ const formattedTime = formatTime(props.event?.start_time);
 const formattedEndTime = formatTime(props.event?.end_time);
 const formattedStartDate = formatDate(props.event?.start_date);
 const formattedEndDate = formatDate(props.event?.end_date);
-
-console.log(props.event)
 </script>
 
 <template>
@@ -252,38 +254,53 @@ console.log(props.event)
       </div>
 
       <!-- Stats Section -->
-      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 space-y-4">
-        <h2 class="text-xl font-bold text-gray-800 dark:text-white">Statistics</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <div class="bg-green-50 dark:bg-green-900 border-l-4 border-green-500 p-4 rounded-xl flex items-center space-x-4 shadow-sm">
-            <CheckCircle class="w-8 h-8 text-green-600" />
-            <div>
-              <p class="text-gray-700 dark:text-gray-200 text-base">Confirmed Participants</p>
-              <p class="text-3xl font-bold text-green-600">{{ event.confirmed_count || 0 }}</p>
-            </div>
-          </div>
+<div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 space-y-4">
+  <h2 class="text-xl font-bold text-gray-800 dark:text-white">Statistics</h2>
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+    <div class="bg-green-50 dark:bg-green-900 border-l-4 border-green-500 p-4 rounded-xl flex items-center space-x-4 shadow-sm">
+      <CheckCircle class="w-8 h-8 text-green-600" />
+      <div>
+        <p class="text-gray-700 dark:text-gray-200 text-base">Confirmed Participants</p>
+        <p class="text-3xl font-bold text-green-600">{{ event.confirmed_count || 0 }}</p>
+      </div>
+    </div>
+    <div class="bg-yellow-50 dark:bg-yellow-900 border-l-4 border-yellow-500 p-4 rounded-xl flex items-center space-x-4 shadow-sm">
+      <Clock class="w-8 h-8 text-yellow-600" />
+      <div>
+        <p class="text-gray-700 dark:text-gray-200 text-base">Waiting Participants</p>
+        <p class="text-3xl font-bold text-yellow-600">{{ event.waiting_count || 0 }}</p>
+      </div>
+    </div>
+  </div>
+  <br>
+  <div v-if="chartData.length > 0" class="mt-10 space-y-6">
+    <div class="flex flex-wrap gap-4 mb-4">
+      <label
+        v-for="(chart, index) in chartData"
+        :key="`checkbox-${index}`"
+        class="inline-flex items-center space-x-2 text-sm text-gray-800 dark:text-gray-200"
+      >
+        <input
+          type="checkbox"
+          v-model="shownCharts[index]"
+          class="form-checkbox h-4 w-4 text-blue-600"
+        />
+        <span>{{ chart.question }}</span>
+      </label>
+    </div>
 
-          <div class="bg-yellow-50 dark:bg-yellow-900 border-l-4 border-yellow-500 p-4 rounded-xl flex items-center space-x-4 shadow-sm">
-            <Clock class="w-8 h-8 text-yellow-600" />
-            <div>
-              <p class="text-gray-700 dark:text-gray-200 text-base">Waiting Participants</p>
-              <p class="text-3xl font-bold text-yellow-600">{{ event.waiting_count || 0 }}</p>
-            </div>
-          </div>
-        </div>
-        <br>
-
-        <div v-if="chartData.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+    <div v-if="chartData.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
           <div v-for="(chart, index) in chartData" :key="index" class="bg-gray-100 dark:bg-gray-700 p-6 rounded-xl shadow-md">
     <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">{{ chart.question }}</h3>
     <canvas :id="`chart-${index}`" class="w-full max-w-xl mx-auto"></canvas>
   </div>
 </div>
-
-<div v-else class="text-gray-600 dark:text-gray-300 mt-6">
-  No statistical data available for this event.
+  </div>
+  <div v-else class="text-gray-600 dark:text-gray-300">
+    No statistics available for this event.
+  </div>
 </div>
-      </div>
-    </div>
-  </AppLayout>
-</template> 
+</div>
+
+</AppLayout>
+</template>
