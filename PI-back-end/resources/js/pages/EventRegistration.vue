@@ -8,6 +8,11 @@ const errors = computed(() => page.props.errors);
 
 const props = defineProps({
   event: Object,
+  participantsCount: Number,
+});
+
+const isEventFull = computed(() => {
+  return props.participantsCount >= props.event.limit_participants;
 });
 
 const formData = ref({
@@ -40,7 +45,8 @@ const calculateCountdown = () => {
     countdown.value = "The event has already started!";
     return;
   }
-
+//se o limite de participantes for atingido, não exibir o contador
+ 
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
   const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
   const minutes = Math.floor((diff / (1000 * 60)) % 60);
@@ -167,7 +173,8 @@ const submitForm = () => {
       </div>
 
       <br>
-      <form v-if="!eventHasStarted" @submit.prevent="submitForm" class="space-y-4 mt-6">
+      <form v-if="!eventHasStarted && !isEventFull" @submit.prevent="submitForm" class="space-y-4 mt-6">
+
         <input v-model="formData.name" placeholder="Name" class="border p-2 w-full text-black dark:text-black"
           required />
         <p v-if="errors.name" class="text-red-500 text-sm">{{ errors.name }}</p>
@@ -188,7 +195,9 @@ const submitForm = () => {
           Don't miss this unique opportunity!
         </p>
       </form>
-
+      <p v-else-if="isEventFull" class="text-center text-red-600 text-2xl font-bold mt-8">
+        Sorry, this event is full.
+      </p>
       <p v-else class="text-center text-red-600 text-2xl font-bold mt-8">
         Sorry, registration is already closed.
       </p>
