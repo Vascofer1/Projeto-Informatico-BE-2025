@@ -10,6 +10,7 @@ use App\Models\Participant;
 use App\Models\EventQuestion;
 use App\Models\EventResponse;
 use App\Models\Question;
+use App\Jobs\SendEventEmail;
 
 
 class EventController extends Controller
@@ -140,7 +141,14 @@ protected function updateEventStatus()
         $validated['image'] = $path;
     }
 
-    Event::create($validated);
+    $event = Event::create($validated);
+
+    // Agenda o envio 24 horas antes do início
+    $sendTime = $startDateTime->copy()->subHours(24);
+    if ($sendTime->isFuture()) {
+        SendEventEmail::dispatch($event, '', true)
+            ->delay($sendTime);
+    }
 
     return redirect()->route('events.index')->with('success', 'Evento criado com sucesso!');
 }
