@@ -157,7 +157,10 @@ protected function updateEventStatus()
     public function showRegistrationPage($id)
     {
         $event = Event::findOrFail($id);
-        return Inertia::render('EventRegistration', ['event' => $event]);
+        return Inertia::render('EventRegistration', [
+            'event' => $event,
+            'participantsCount' => $event->participants()->count(),
+        ]);
     }
 
 
