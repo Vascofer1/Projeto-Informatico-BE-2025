@@ -119,6 +119,8 @@ protected function updateEventStatus()
         'end_time' => 'required',
         'limit_participants' => 'nullable|integer|min:1',
         'description' => 'nullable|string',
+        'image' => 'nullable|image|max:2048', 
+        'custom_background' => 'nullable|image|max:2048', 
     ]);
 
     // Criar um objeto de data/hora para comparação mais precisa
@@ -136,8 +138,13 @@ protected function updateEventStatus()
     }
 
     if ($request->hasFile('image')) {
-        $path = $request->file('image')->store('event_images', 'public'); // Salva na pasta storage/app/public/event_images
+        $path = $request->file('image')->store('event_images', 'public');
         $validated['image'] = $path;
+    }
+
+    if ($request->hasFile('custom_background')) {
+        $bgPath = $request->file('custom_background')->store('custom_backgrounds', 'public'); 
+        $validated['custom_background'] = $bgPath;
     }
 
     $event = Event::create($validated);
