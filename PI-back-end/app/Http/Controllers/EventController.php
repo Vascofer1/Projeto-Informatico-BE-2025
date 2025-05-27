@@ -10,6 +10,7 @@ use App\Models\Participant;
 use App\Models\EventQuestion;
 use App\Models\EventResponse;
 use App\Models\Question;
+use App\Jobs\SendEventEmail;
 
 
 class EventController extends Controller
@@ -105,8 +106,10 @@ protected function updateEventStatus()
      */
     public function store(Request $request)
 {
-    $data = $request->validate([
-        'name' => 'required|string',
+    $now = now(); // Obtém a data e hora atuais
+
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
         'type' => 'required|string',
         'category' => 'required|string',
         'location' => 'required|string',
@@ -116,30 +119,47 @@ protected function updateEventStatus()
         'end_time' => 'required',
         'limit_participants' => 'nullable|integer|min:1',
         'description' => 'nullable|string',
-        'image' => 'nullable|image',
-        'custom_background' => 'nullable|image',
     ]);
 
+    // Criar um objeto de data/hora para comparação mais precisa
+    $startDateTime = \Carbon\Carbon::parse("{$request->start_date} {$request->start_time}");
+    $endDateTime = \Carbon\Carbon::parse("{$request->end_date} {$request->end_time}");
+
+    // Se a data/hora de início for no passado
+    if ($startDateTime->lt($now)) {
+        return back()->withErrors(['start_date' => 'Start date and time must be in the future.'])->withInput();
+    }
+
+    // Se a data/hora de término for antes da data/hora de início
+    if ($endDateTime->lte($startDateTime)) {
+        return back()->withErrors(['end_time' => 'The end date field must be a date after or equal to start date.'])->withInput();
+    }
+
     if ($request->hasFile('image')) {
-        $data['image'] = $request->file('image')->store('events', 'public');
+        $path = $request->file('image')->store('event_images', 'public'); // Salva na pasta storage/app/public/event_images
+        $validated['image'] = $path;
     }
 
-    if ($request->hasFile('custom_background')) {
-        $data['custom_background'] = $request->file('custom_background')->store('custom_backgrounds', 'public');
+    $event = Event::create($validated);
+
+    // Agenda o envio 24 horas antes do início
+    $sendTime = $startDateTime->copy()->subHours(24);
+    if ($sendTime->isFuture()) {
+        SendEventEmail::dispatch($event, '', true)
+            ->delay($sendTime);
     }
 
-    $data['user_id'] = Auth::id();
-
-    Event::create($data);
-
-    return redirect()->route('events.index')->with('success', 'Event created successfully!');
+    return redirect()->route('events.index')->with('success', 'Evento criado com sucesso!');
 }
 
 
     public function showRegistrationPage($id)
     {
         $event = Event::findOrFail($id);
-        return Inertia::render('EventRegistration', ['event' => $event]);
+        return Inertia::render('EventRegistration', [
+            'event' => $event,
+            'participantsCount' => $event->participants()->count(),
+        ]);
     }
 
 
