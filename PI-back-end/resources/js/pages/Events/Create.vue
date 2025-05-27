@@ -16,6 +16,7 @@ const form = ref({
   image: null,
   limit_participants: "",
   description: "",
+  custom_background: null,
 });
 
 const errors = ref({}); // Para guardar os erros
@@ -169,6 +170,12 @@ const breadcrumbs: BreadcrumbItem[] = [
         <h3 class="mt-5 font-bold text-gray-700 dark:text-gray-300">Description</h3>
         <textarea v-model="form.description"
           class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"></textarea>
+
+        <h3 class="mt-5 font-bold text-gray-700 dark:text-gray-300">Registration Form Background</h3>
+<input type="file" @change="(e: any) => (form.custom_background = e.target.files[0])"
+  accept="image/png, image/jpeg, image/jpg"
+  class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700" />
+<p class="text-gray-600 dark:text-gray-400 text-sm">Accepted formats: PNG, JPG, JPEG</p>
 
         <!-- Botões -->
         <div class="flex justify-between mt-4">

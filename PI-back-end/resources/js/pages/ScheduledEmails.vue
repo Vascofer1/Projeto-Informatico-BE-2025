@@ -52,7 +52,7 @@ import type { BreadcrumbItem } from '@/types';
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
-    title: `/Scheduled-Messages`,
+    title: `Scheduled-Messages`,
     href: `/messages/create`,
   },
 ];

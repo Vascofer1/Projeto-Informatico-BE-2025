@@ -26,6 +26,7 @@ class Event extends Model
         "start_time",
         "end_time",
         'image',
+        'custom_background',
 
     ];
 

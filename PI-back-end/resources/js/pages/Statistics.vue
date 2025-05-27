@@ -15,7 +15,8 @@ import {
 import AppLayout from '@/layouts/AppLayout.vue'
 import { BreadcrumbItem } from '@/types/BreadcrumbItem'
 
-Chart.register(BarController, BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend, PieController, ArcElement)
+
+Chart.register(BarController, BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend, PieController, ArcElement);
 
 const props = defineProps<{
   eventsPerMonth: Record<string, number>;
@@ -104,9 +105,10 @@ const drawBarChart = (canvasId: string, labels: string[], data: number[], label:
 
 const drawPieChart = (canvasId: string, labels: string[], data: number[]) => {
   const ctx = document.getElementById(canvasId) as HTMLCanvasElement;
-  // Force a neutral color that works in both light and dark mode
   const neutralTextColor = '#9CA3AF';
   const backgroundColors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
+
+  const total = data.reduce((acc, val) => acc + val, 0);
 
   new Chart(ctx, {
     type: 'pie',
@@ -133,6 +135,13 @@ const drawPieChart = (canvasId: string, labels: string[], data: number[]) => {
           }
         },
         tooltip: {
+          callbacks: {
+            label: (ctx) => {
+              const value = ctx.parsed;
+              const percentage = ((value / total) * 100).toFixed(1);
+              return `${ctx.label}: ${value} (${percentage}%)`;
+            }
+          },
           bodyColor: neutralTextColor,
           backgroundColor: 'rgba(17, 24, 39, 0.9)',
           titleColor: neutralTextColor,
@@ -183,60 +192,70 @@ const medalEmojis = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣']
 
 <template>
   <AppLayout :breadcrumbs="breadcrumbs">
-    <div class="p-8 space-y-12 bg-gray-100 dark:bg-gray-900 min-h-screen transition-colors">
-      <div class="mb-6">
-        <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Filter by:</label>
-        <select @change="onFilterChange" :value="props.selectedFilter"
-          class="rounded-md shadow-sm border-gray-300 dark:border-gray-600 text-black dark:bg-gray-800 dark:text-white">
-          <option value="year">Last Year</option>
-          <option value="6months">Last 6 Months</option>
-        </select>
+    <div class="px-6 py-10 bg-gray-100 dark:bg-gray-900 min-h-screen space-y-12">
+      
+      <!-- Filtro -->
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <label class="block mb-1 text-sm font-semibold text-gray-700 dark:text-gray-300">Filter by period</label>
+          <select @change="onFilterChange" :value="props.selectedFilter"
+            class="rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-800 dark:text-white px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="year">Last Year</option>
+            <option value="6months">Last 6 Months</option>
+          </select>
+        </div>
       </div>
-      <!-- Average and Top Events -->
-      <div class="w-full bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
-        <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Top 5 Events by Confirmed Participants</h3>
-        <ul class="space-y-2">
+
+      <!-- Top Eventos -->
+      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+        <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">Top 5 Events by Confirmed Participants</h2>
+        <ul class="divide-y divide-gray-200 dark:divide-gray-700">
           <li
-            v-for="index in 5" 
+            v-for="index in 5"
             :key="index"
-            class="flex items-center space-x-3 text-gray-700 dark:text-gray-300"
+            class="py-3 flex items-start gap-3 text-gray-700 dark:text-gray-300"
           >
-            <span class="text-xl">{{ medalEmojis[index - 1] }}</span>
-            <div>
-              <span v-if="props.topEvents[index - 1]">
-  <strong>{{ props.topEvents[index - 1].name }}</strong> —
-  {{ props.topEvents[index - 1].confirmed }} confirmed
-  ({{ props.topEvents[index - 1].percentage }}%)
-</span>
-              <span v-else class="italic text-gray-500">No event</span>
+            <span class="text-2xl w-6">{{ medalEmojis[index - 1] }}</span>
+            <div class="flex-1">
+              <template v-if="props.topEvents[index - 1]">
+                <p class="font-semibold">
+                  {{ props.topEvents[index - 1].name }}
+                </p>
+                <p class="text-sm text-gray-600 dark:text-gray-400">
+                  {{ props.topEvents[index - 1].confirmed }} confirmed ({{ props.topEvents[index - 1].percentage }}%)
+                </p>
+              </template>
+              <template v-else>
+                <p class="italic text-gray-500">No event</p>
+              </template>
             </div>
           </li>
         </ul>
       </div>
-      <!-- Events per Month -->
-      <div class="w-full bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
-        <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">Events per Month</h2>
-        <canvas id="eventsChart" class="w-full h-96"></canvas>
-      </div>
 
-      <!-- Participants per Month -->
-      <div class="w-full bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
-        <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">Participants per Month</h2>
-        <canvas id="participantsChart" class="w-full h-96"></canvas>
-      </div>
-
-      <!-- Category and Type Distribution (Side by side) -->
-      <div class="w-full bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Category Distribution -->
-        <div class="flex flex-col items-center">
-          <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4 text-center">Events by Category</h2>
-          <canvas id="categoryChart" class="w-64 h-64"></canvas>
+      <!-- Gráficos Mensais -->
+      <div class="grid lg:grid-cols-2 gap-6">
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg">
+          <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-3">Events per Month</h2>
+          <canvas id="eventsChart" class="w-full h-96"></canvas>
         </div>
 
-        <!-- Type Distribution -->
-        <div class="flex flex-col items-center">
-          <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4 text-center">Events by Type</h2>
-          <canvas id="typeChart" class="w-64 h-64"></canvas>
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg">
+          <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-3">Participants per Month</h2>
+          <canvas id="participantsChart" class="w-full h-96"></canvas>
+        </div>
+      </div>
+
+      <!-- Gráficos por Categoria e Tipo -->
+      <div class="grid lg:grid-cols-2 gap-6">
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg flex flex-col items-center">
+          <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Events by Category</h2>
+            <canvas id="categoryChart" class="w-48 h-48"></canvas>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg flex flex-col items-center">
+          <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Events by Type</h2>
+          <canvas id="typeChart" class="w-48 h-48"></canvas>
         </div>
       </div>
     </div>

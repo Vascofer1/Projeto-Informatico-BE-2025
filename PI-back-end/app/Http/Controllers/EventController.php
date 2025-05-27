@@ -105,44 +105,34 @@ protected function updateEventStatus()
      */
     public function store(Request $request)
 {
-    $now = now(); // Obtém a data e hora atuais
-
-    $validated = $request->validate([
-        'name' => 'required|string|max:255',
+    $data = $request->validate([
+        'name' => 'required|string',
         'type' => 'required|string',
         'category' => 'required|string',
         'location' => 'required|string',
-        'start_date' => 'required|date|after_or_equal:' . $now->toDateString(),
-        'start_time' => 'required|date_format:H:i',
-        'end_date' => 'required|date|after_or_equal:start_date',
-        'end_time' => 'required|date_format:H:i',
-        'image' => 'nullable|image|max:2048',
+        'start_date' => 'required|date',
+        'start_time' => 'required',
+        'end_date' => 'required|date',
+        'end_time' => 'required',
         'limit_participants' => 'nullable|integer|min:1',
         'description' => 'nullable|string',
+        'image' => 'nullable|image',
+        'custom_background' => 'nullable|image',
     ]);
 
-    // Criar um objeto de data/hora para comparação mais precisa
-    $startDateTime = \Carbon\Carbon::parse("{$request->start_date} {$request->start_time}");
-    $endDateTime = \Carbon\Carbon::parse("{$request->end_date} {$request->end_time}");
-
-    // Se a data/hora de início for no passado
-    if ($startDateTime->lt($now)) {
-        return back()->withErrors(['start_date' => 'Start date and time must be in the future.'])->withInput();
-    }
-
-    // Se a data/hora de término for antes da data/hora de início
-    if ($endDateTime->lte($startDateTime)) {
-        return back()->withErrors(['end_time' => 'The end date field must be a date after or equal to start date.'])->withInput();
-    }
-
     if ($request->hasFile('image')) {
-        $path = $request->file('image')->store('event_images', 'public'); // Salva na pasta storage/app/public/event_images
-        $validated['image'] = $path;
+        $data['image'] = $request->file('image')->store('events', 'public');
     }
 
-    Event::create($validated);
+    if ($request->hasFile('custom_background')) {
+        $data['custom_background'] = $request->file('custom_background')->store('custom_backgrounds', 'public');
+    }
 
-    return redirect()->route('events.index')->with('success', 'Evento criado com sucesso!');
+    $data['user_id'] = Auth::id();
+
+    Event::create($data);
+
+    return redirect()->route('events.index')->with('success', 'Event created successfully!');
 }
 
 
@@ -241,6 +231,7 @@ protected function updateEventStatus()
         'limit_participants' => 'nullable|integer|min:1',
         'description' => 'nullable|string',
         'image' => 'nullable|image|max:2048',
+        'custom_background' => 'nullable|image|max:2048',
     ]);
 
     $startDateTime = \Carbon\Carbon::parse("{$request->start_date} {$request->start_time}");
@@ -259,6 +250,11 @@ protected function updateEventStatus()
         // Guarda a imagem e obtém o caminho
         $path = $request->file('image')->store('event_images', 'public');
         $validated['image'] = $path;
+    }
+
+    if ($request->hasFile('custom_background')) {
+        $bgPath = $request->file('custom_background')->store('event_images', 'public');
+        $validated['custom_background'] = $bgPath;
     }
 
     foreach ($validated as $key => $value) {

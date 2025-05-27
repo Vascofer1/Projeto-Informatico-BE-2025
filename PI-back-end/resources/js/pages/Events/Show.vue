@@ -36,7 +36,8 @@ interface Event {
 
 const props = defineProps<{ event: Event; formExists: boolean; chartData: ChartDataItem[] }>();
 
-const shownCharts = ref<boolean[]>(props.chartData.map(() => true));
+const chartData = props.chartData ?? [];
+const shownCharts = ref<boolean[]>(chartData.map(() => true));
 
 const charts: Ref<(Chart | null)[]> = ref([]);
 
@@ -98,11 +99,13 @@ const createOrUpdateChart = (chartItem: ChartDataItem, index: number) => {
 };
 
 onMounted(() => {
-  props.chartData.forEach((chart, index) => {
-    if (shownCharts.value[index]) {
-      createOrUpdateChart(chart, index);
-    }
-  });
+  if (Array.isArray(props.chartData)) {
+    props.chartData.forEach((chart, index) => {
+      if (shownCharts.value[index]) {
+        createOrUpdateChart(chart, index);
+      }
+    });
+  }
 });
 
 watch(shownCharts, (newValues, oldValues) => {

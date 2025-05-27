@@ -16,17 +16,32 @@ const formData = ref({
   phone: "",
 });
 
-const categoryBackground = computed(() => {
-  switch (props.event.category) {
-    case "Sports":
-      return "bg-[url('/images/bg-sport.jpg')] bg-cover bg-center";
-    case "Health":
-      return "bg-[url('/images/bg-health.jpg')] bg-cover bg-center";
-    case "Technology":
-      return "bg-[url('/images/bg-tech.jpg')] bg-cover bg-center";
-    default:
-      return "bg-blue-100"; // Cor padrão para "outros"
+const backgroundStyle = computed(() => {
+  let url = "";
+
+  if (props.event.custom_background) {
+    url = `/storage/${props.event.custom_background}`;
+  } else {
+    switch (props.event.category) {
+      case 'Sports':
+        url = '/images/bg-sport.jpg';
+        break;
+      case 'Health':
+        url = '/images/bg-health.jpg';
+        break;
+      case 'Technology':
+        url = '/images/bg-tech.jpg';
+        break;
+      default:
+        return { backgroundColor: '#bfdbfe' }; // equivalente a bg-blue-100
+    }
   }
+
+  return {
+    backgroundImage: `url('${url}')`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center'
+  };
 });
 
 // Contador regressivo
@@ -53,7 +68,8 @@ const phrases = [
   `Get ready for a one-of-a-kind ${props.event.type} focused on ${props.event.category}!`,
   `Experience the thrill of a ${props.event.category}-themed ${props.event.type} like no other!`,
   `Discover a unique ${props.event.type} celebrating the world of ${props.event.category}.`,
-  `Step into the future of ${props.event.category} with this unforgettable ${props.event.type}!`
+  `Step into the future of ${props.event.category} with this unforgettable ${props.event.type}!`,
+  `Join us for an extraordinary ${props.event.type} that will redefine your understanding of ${props.event.category}.`
 ];
 
 // Escolher uma frase aleatoriamente
@@ -119,7 +135,8 @@ const submitForm = () => {
 </script>
 
 <template>
-  <div :class="['min-h-screen p-6', categoryBackground]">
+  <div class="min-h-screen p-6" :style="backgroundStyle">
+
     <div class="max-w-4xl mx-auto bg-white/80 backdrop-blur shadow-xl rounded-lg p-6">
       <h1 class="text-3xl text-center text-gray-800">
         Registration for <span class="font-bold">{{ props.event.name }}</span>
