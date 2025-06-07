@@ -27,17 +27,34 @@ const props = defineProps({
 const answers = reactive<{ [key: number]: string }>({})
 
 const categoryBackground = computed(() => {
-  switch (props.event.category) {
-    case 'Sports':
-      return "bg-[url('/images/bg-sport.jpg')] bg-cover bg-center"
-    case 'Health':
-      return "bg-[url('/images/bg-health.jpg')] bg-cover bg-center"
-    case 'Technology':
-      return "bg-[url('/images/bg-tech.jpg')] bg-cover bg-center"
-    default:
-      return 'bg-blue-100'
+  let url = "";
+
+  if (props.event.custom_background) {
+    url = `/storage/${props.event.custom_background}`;
+  } else {
+    switch (props.event.category) {
+      case 'Sports':
+        url = '/images/bg-sport.jpg';
+        break;
+      case 'Health':
+        url = '/images/bg-health.jpg';
+        break;
+      case 'Technology':
+        url = '/images/bg-tech.jpg';
+        break;
+      default:
+        return { backgroundColor: '#bfdbfe' }; // equivalente a bg-blue-100
+    }
   }
-})
+
+  return {
+    backgroundImage: `url('${url}')`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center'
+  };
+});
+
+
 
 const eventHasStarted = computed(() => {
   const eventDate = new Date(`${props.event.start_date}T${props.event.start_time}`)
@@ -48,7 +65,7 @@ const eventHasStarted = computed(() => {
 const submitForm = () => {
   const missing = props.questions.filter(q => q.mandatory && !answers[q.id])
   if (missing.length > 0) {
-    alert('Preenche todas as perguntas obrigatórias antes de submeter.')
+    alert('Please fill in all mandatory questions before submitting.')
     return
   }
 
@@ -79,7 +96,10 @@ const submitForm = () => {
 </script>
 
 <template>
-  <div :class="['min-h-screen p-4 sm:p-6', categoryBackground]">
+  <div
+  class="min-h-screen p-4 sm:p-6"
+  :style="categoryBackground"
+>
     <div class="max-w-5xl mx-auto bg-white/80 backdrop-blur-md shadow-2xl rounded-2xl p-6 sm:p-10">
       <h1 class="text-2xl sm:text-3xl text-center  text-gray-800">
         Participation Form for <span class="text-3xl sm:text-4xl font-bold">{{ props.event.name }}</span>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineProps, computed, onMounted, ref, watch } from "vue";
+import { defineProps, computed, onMounted, ref, watch, nextTick } from "vue";
 import { router } from "@inertiajs/vue3";
 import { Link } from "@inertiajs/vue3";
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -46,7 +46,7 @@ const createOrUpdateChart = (chartItem: ChartDataItem, index: number) => {
   if (!ctx) return;
 
   const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  const tickColor = isDark ? '#ffffff' : '#6b7280';
+  const tickColor = isDark ? '#9CA3AF' : '#9CA3AF';
   const gridColor = isDark ? '#374151' : '#e5e7eb';
 
   if (charts.value[index]) {
@@ -86,11 +86,11 @@ const createOrUpdateChart = (chartItem: ChartDataItem, index: number) => {
       scales: {
         y: {
           beginAtZero: true,
-          ticks: { stepSize: 1, color: tickColor, font: { size: 14 } },
+          ticks: { stepSize: 1, color: tickColor, font: { size: 14, weight: 'bold' }},
           grid: { color: gridColor }
         },
         x: {
-          ticks: { color: tickColor, font: { size: 14 } },
+          ticks: { color: tickColor, font: { size: 14, weight: 'bold' }},
           grid: { display: false }
         }
       }
@@ -108,15 +108,16 @@ onMounted(() => {
   }
 });
 
-watch(shownCharts, (newValues, oldValues) => {
-  newValues.forEach((show, index) => {
-    if (show && !oldValues[index]) {
-      nextTick(() => createOrUpdateChart(props.chartData[index], index));
-    } else if (!show && charts.value[index]) {
+watch(shownCharts, async (newValues, oldValues) => {
+  for (let index = 0; index < newValues.length; index++) {
+    if (newValues[index] && !oldValues[index]) {
+      await nextTick();
+      createOrUpdateChart(props.chartData[index], index);
+    } else if (!newValues[index] && charts.value[index]) {
       charts.value[index]?.destroy();
       charts.value[index] = null;
     }
-  });
+  }
 });
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -160,25 +161,25 @@ const formattedEndDate = formatDate(props.event?.end_date);
       <div class="flex flex-col lg:flex-row gap-6">
         <!-- Event Info Card -->
         <div
-  class="relative bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 flex-1 flex gap-6"
-  :class="{ 'flex-col': !event.image, 'flex-row': event.image }"
->
-  <!-- Header (Event Name inside the card) -->
-  <div class="absolute top-4 left-6 right-6 z-10">
-    <h1 class="text-4xl font-bold text-gray-800 dark:text-white drop-shadow-md">{{ event.name }}</h1>
-  </div>
+          class="relative bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 flex-1 flex gap-6"
+          :class="{ 'flex-col': !event.image, 'flex-row': event.image }"
+        >
+          <!-- Header (Event Name inside the card) -->
+          <div class="absolute top-4 left-6 right-6 z-10">
+            <h1 class="text-4xl font-bold text-gray-800 dark:text-white drop-shadow-md">{{ event.name }}</h1>
+          </div>
 
           <!-- Imagem -->
           <div
-    v-if="event.image"
-    class="w-full md:w-48 h-auto aspect-[2/3] rounded-xl overflow-hidden shadow-lg mt-14"
-  >
-    <img
-      :src="`/storage/${event.image}`"
-      alt="Event Image"
-      class="w-full h-full object-cover"
-    />
-  </div>
+            v-if="event.image"
+            class="w-full md:w-48 h-auto aspect-[2/3] rounded-xl overflow-hidden shadow-lg mt-14"
+          >
+            <img
+              :src="`/storage/${event.image}`"
+              alt="Event Image"
+              class="w-full h-full object-cover"
+            />
+          </div>
 
           <!-- Info -->
           <div class="flex-1 space-y-6 text-gray-700 dark:text-gray-300">
@@ -249,61 +250,71 @@ const formattedEndDate = formatDate(props.event?.end_date);
             <Users class="w-5 h-5" /> View Participants
           </Link>
 
-          <Link :href="`/messages/create/${event.id}`"
+          <Link v-if="event.status !== 'Finished'" :href="`/messages/create/${event.id}`"
             class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg text-center flex items-center justify-center gap-2">
             <Mail class="w-5 h-5" /> Schedule Message
           </Link>
         </div>
       </div>
 
-      <!-- Stats Section -->
-<div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 space-y-4">
-  <h2 class="text-xl font-bold text-gray-800 dark:text-white">Statistics</h2>
-  <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-    <div class="bg-green-50 dark:bg-green-900 border-l-4 border-green-500 p-4 rounded-xl flex items-center space-x-4 shadow-sm">
-      <CheckCircle class="w-8 h-8 text-green-600" />
-      <div>
-        <p class="text-gray-700 dark:text-gray-200 text-base">Confirmed Participants</p>
-        <p class="text-3xl font-bold text-green-600">{{ event.confirmed_count || 0 }}</p>
+
+      <!-- Statistics Card: Toggles, Participants, and Charts -->
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 flex flex-col gap-6">
+        <!-- Show/Hide Chart Checkboxes -->
+        <h2 class="text-xl font-bold text-gray-800 dark:text-white mb-4">Statistics</h2>
+
+        <!-- Participants and Waiting Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="bg-green-50 dark:bg-green-900 border-l-4 border-green-500 p-4 rounded-xl flex items-center space-x-4 shadow-sm">
+        <CheckCircle class="w-8 h-8 text-green-600" />
+        <div>
+          <p class="text-gray-700 dark:text-gray-200 text-base">Confirmed Participants</p>
+          <p class="text-3xl font-bold text-green-600">{{ event.confirmed_count ?? 0 }}</p>
+        </div>
+          </div>
+          <div class="bg-yellow-50 dark:bg-yellow-900 border-l-4 border-yellow-500 p-4 rounded-xl flex items-center space-x-4 shadow-sm">
+        <Clock class="w-8 h-8 text-yellow-600" />
+        <div>
+          <p class="text-gray-700 dark:text-gray-200 text-base">Unconfirmed Participants</p>
+          <p class="text-3xl font-bold text-yellow-600">{{ event.waiting_count ?? 0 }}</p>
+        </div>
+          </div>
+        </div>
+
+        <br>
+
+        <div v-if="chartData.length">
+          <div class="flex flex-wrap gap-6">
+        <div v-for="(chart, index) in chartData" :key="index" class="flex items-center space-x-2">
+          <input
+            type="checkbox"
+            :id="`show-chart-${index}`"
+            v-model="shownCharts[index]"
+            class="w-4 h-4 accent-blue-600"
+          />
+          <label :for="`show-chart-${index}`" class="text-gray-800 dark:text-gray-200 text-sm">{{ chart.question }}</label>
+        </div>
+          </div>
+        </div>
+        
+        <!-- Charts -->
+        <div>
+          <div v-if="chartData.length" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div
+          v-for="(chart, index) in chartData"
+          :key="index"
+          v-show="shownCharts[index]"
+          class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 flex flex-col"
+        >
+          <h3 class="text-lg font-bold text-gray-800 dark:text-white mb-4">{{ chart.question }}</h3>
+          <canvas :id="`chart-${index}`" class="w-full h-64"></canvas>
+        </div>
+          </div>
+          <div v-else>
+        <p class="text-gray-700 dark:text-gray-300">Create the event form in order to show more statistics.</p>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="bg-yellow-50 dark:bg-yellow-900 border-l-4 border-yellow-500 p-4 rounded-xl flex items-center space-x-4 shadow-sm">
-      <Clock class="w-8 h-8 text-yellow-600" />
-      <div>
-        <p class="text-gray-700 dark:text-gray-200 text-base">Waiting Participants</p>
-        <p class="text-3xl font-bold text-yellow-600">{{ event.waiting_count || 0 }}</p>
-      </div>
-    </div>
-  </div>
-  <br>
-  <div v-if="chartData.length > 0" class="mt-10 space-y-6">
-    <div class="flex flex-wrap gap-4 mb-4">
-      <label
-        v-for="(chart, index) in chartData"
-        :key="`checkbox-${index}`"
-        class="inline-flex items-center space-x-2 text-sm text-gray-800 dark:text-gray-200"
-      >
-        <input
-          type="checkbox"
-          v-model="shownCharts[index]"
-          class="form-checkbox h-4 w-4 text-blue-600"
-        />
-        <span>{{ chart.question }}</span>
-      </label>
-    </div>
-
-    <div v-if="chartData.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-          <div v-for="(chart, index) in chartData" :key="index" class="bg-gray-100 dark:bg-gray-700 p-6 rounded-xl shadow-md">
-    <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">{{ chart.question }}</h3>
-    <canvas :id="`chart-${index}`" class="w-full max-w-xl mx-auto"></canvas>
-  </div>
-</div>
-  </div>
-  <div v-else class="text-gray-600 dark:text-gray-300">
-    No statistics available for this event.
-  </div>
-</div>
-</div>
-
-</AppLayout>
+  </AppLayout>
 </template>
