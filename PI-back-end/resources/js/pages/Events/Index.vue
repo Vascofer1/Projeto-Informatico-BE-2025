@@ -77,7 +77,7 @@ const breadcrumbs: BreadcrumbItem[] = [
         <div class="p-6 bg-gray-100 dark:bg-gray-900 min-h-screen">
             <div class="flex justify-between items-center mb-6">
                 <button @click="router.get('/events/create')"
-                    class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg transition">
+                    class="bg-orange-600 hover:bg-orange-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition">
                     Create New Event
                 </button>
             </div>
@@ -138,7 +138,8 @@ const breadcrumbs: BreadcrumbItem[] = [
                         @click="router.get(link.url)"
                         class="px-3 py-1 rounded transition"
                         :class="{
-                            'bg-orange-600 text-white': link.active,
+                            'bg-orange-600 dark:bg-blue-600 text-white': link.active,
+                            
                             'text-gray-700 hover:bg-gray-300 dark:text-gray-300 dark:hover:bg-gray-700': !link.active
                         }"
                         v-html="link.label"

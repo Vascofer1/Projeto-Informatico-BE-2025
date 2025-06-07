@@ -105,7 +105,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 
           <Button
             type="submit"
-            class="mt-2 w-full text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+            class="mt-2 w-full text-white bg-orange-600 hover:bg-orange-700 dark:bg-blue-600 dark:hover:bg-blue-700"
             tabindex="5"
             :disabled="form.processing"
           >

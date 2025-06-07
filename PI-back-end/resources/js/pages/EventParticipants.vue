@@ -64,10 +64,6 @@ function onStatusChange() {
 <template>
   <AppLayout :breadcrumbs="breadcrumbs">
     <div class="container mx-auto p-4 bg-gray-50 dark:bg-gray-900 min-h-screen">
-      <h1 class="text-3xl font-bold mb-6 text-gray-800 dark:text-white">
-        {{ props.event.name }} - Participants
-      </h1>
-
       <input 
         v-model="searchQuery" 
         @input="onSearch" 
@@ -140,21 +136,20 @@ function onStatusChange() {
       </div>
 
       <!-- Paginação -->
-      <div class="flex justify-center mt-6 space-x-1">
-        <button 
-          v-for="link in props.participants.links" 
-          :key="link.label" 
-          :disabled="!link.url"
-          @click="goToPage(link.url)" 
-          v-html="link.label"
-          class="px-3 py-1 rounded text-sm font-medium border transition" 
-          :class="{
-            'bg-blue-500 text-white border-blue-500': link.active,
-            'text-gray-600 border-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-300': !link.active && link.url,
-            'text-gray-400 border-gray-200 cursor-not-allowed': !link.url
-          }"
-        />
-      </div>
+      <div class="flex justify-center mt-6 space-x-2">
+  <template v-for="(link, index) in props.participants.links" :key="index">
+    <button
+      v-if="link.url"
+      @click="goToPage(link.url)"
+      class="px-3 py-1 rounded transition"
+      :class="{
+        'bg-orange-600 dark:bg-blue-600 text-white': link.active,
+        'text-gray-700 hover:bg-gray-300 dark:text-gray-300 dark:hover:bg-gray-700': !link.active
+      }"
+      v-html="link.label"
+    ></button>
+  </template>
+</div>
 
       <!-- Botões de Exportação -->
       <div class="mt-8 flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">

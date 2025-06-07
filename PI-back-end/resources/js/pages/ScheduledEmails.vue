@@ -1,8 +1,6 @@
 <template>
   <AppLayout :breadcrumbs="breadcrumbs">
     <div class="p-4 bg-gray-100 dark:bg-gray-900 min-h-screen transition-colors">
-      <h1 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Scheduled Messages</h1>
-
       <input
         type="text"
         v-model="filter"
@@ -52,7 +50,7 @@ import type { BreadcrumbItem } from '@/types';
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
-    title: `Scheduled-Messages`,
+    title: `Scheduled Messages`,
     href: `/messages/create`,
   },
 ];

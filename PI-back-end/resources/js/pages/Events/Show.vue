@@ -46,7 +46,7 @@ const createOrUpdateChart = (chartItem: ChartDataItem, index: number) => {
   if (!ctx) return;
 
   const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  const tickColor = isDark ? '#9CA3AF' : '#9CA3AF';
+  const tickColor = isDark ? '#fff' : '#9CA3AF';
   const gridColor = isDark ? '#374151' : '#e5e7eb';
 
   if (charts.value[index]) {
@@ -228,30 +228,30 @@ const formattedEndDate = formatDate(props.event?.end_date);
 
           <p class="font-bold text-gray-800 dark:text-gray-200">Forms</p>
           <Link :href="`/inscricao/${event.id}`"
-            class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg text-center flex items-center justify-center gap-2">
+            class="bg-orange-600 hover:bg-orange-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-center flex items-center justify-center gap-2">
             <FileText class="w-5 h-5" /> View Registration Form
           </Link>
 
           <Link :href="`/events/${event.id}/form`"
             v-if="formExists"
-            class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg text-center flex items-center justify-center gap-2">
+            class="bg-orange-600 hover:bg-orange-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-center flex items-center justify-center gap-2">
             <ClipboardList class="w-5 h-5" /> View Event Form
           </Link>
 
           <Link v-if="!formExists"
             :href="`/events/${event.id}/questions`"
-            class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg text-center flex items-center justify-center gap-2">
+            class="bg-orange-600 hover:bg-orange-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-center flex items-center justify-center gap-2">
             <PlusCircle class="w-5 h-5" /> Create Event Form
           </Link>
 
           <p class="font-bold text-gray-800 dark:text-gray-200">Participants</p>
           <Link :href="`/event/${event.id}/participants`"
-            class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg text-center flex items-center justify-center gap-2">
+            class="bg-orange-600 hover:bg-orange-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-center flex items-center justify-center gap-2">
             <Users class="w-5 h-5" /> View Participants
           </Link>
 
           <Link v-if="event.status !== 'Finished'" :href="`/messages/create/${event.id}`"
-            class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg text-center flex items-center justify-center gap-2">
+            class="bg-orange-500 hover:bg-orange-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-center flex items-center justify-center gap-2">
             <Mail class="w-5 h-5" /> Schedule Message
           </Link>
         </div>
