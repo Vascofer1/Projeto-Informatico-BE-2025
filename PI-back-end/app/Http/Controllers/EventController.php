@@ -11,6 +11,8 @@ use App\Models\EventQuestion;
 use App\Models\EventResponse;
 use App\Models\Question;
 use App\Jobs\SendEventEmail;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
+
 
 
 class EventController extends Controller
@@ -318,5 +320,26 @@ protected function updateEventStatus()
     $event->delete();
 
     return redirect()->route('events.index')->with('success', 'Evento eliminado com sucesso!');
+}
+
+public function downloadQrCode($id)
+{
+    $event = Event::findOrFail($id);
+
+    
+    $url = url("/inscricao/{$event->id}");
+
+    
+    $qrCode = QrCode::format('png')
+        ->size(300)
+        ->margin(1)
+        ->backgroundColor(255, 255, 255)
+        ->generate($url);
+    
+    $filename = "event_{$event->id}_qrcode.png";
+    $path = storage_path("app/public/{$filename}");
+    file_put_contents($path, $qrCode);
+    return response()->download($path, $filename)->deleteFileAfterSend(true);
+
 }
 }
