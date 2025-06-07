@@ -160,16 +160,17 @@ const formattedEndDate = formatDate(props.event?.end_date);
       <!-- Header Section -->
       <div class="flex flex-col lg:flex-row gap-6">
         <!-- Event Info Card -->
-        <div
-          class="relative bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 flex-1 flex gap-6"
-          :class="{ 'flex-col': !event.image, 'flex-row': event.image }"
-        >
+
+        <div class="relative bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 flex-1 flex gap-6"
+          :class="{ 'flex-col': !event.image, 'flex-row': event.image }">
+
           <!-- Header (Event Name inside the card) -->
           <div class="absolute top-4 left-6 right-6 z-10">
             <h1 class="text-4xl font-bold text-gray-800 dark:text-white drop-shadow-md">{{ event.name }}</h1>
           </div>
 
           <!-- Imagem -->
+
           <div
             v-if="event.image"
             class="w-full md:w-48 h-auto aspect-[2/3] rounded-xl overflow-hidden shadow-lg mt-14"
@@ -179,45 +180,47 @@ const formattedEndDate = formatDate(props.event?.end_date);
               alt="Event Image"
               class="w-full h-full object-cover"
             />
+
           </div>
 
           <!-- Info -->
           <div class="flex-1 space-y-6 text-gray-700 dark:text-gray-300">
             <div class="flex justify-end items-start">
-              <span
-                class="px-4 py-1 text-base font-semibold text-white rounded-full"
-                :class="statusColors"
-              >
+              <span class="px-4 py-1 text-base font-semibold text-white rounded-full" :class="statusColors">
                 {{ event.status === 'Upcoming' ? 'Upcoming' : event.status }}
               </span>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
               <p><span class="font-semibold text-gray-900 dark:text-white">
-                <MapPin class="inline-block w-5 h-5" /> Location:</span> {{ event.location }}</p>
+                  <MapPin class="inline-block w-5 h-5" /> Location:
+                </span> {{ event.location }}</p>
               <p><span class="font-semibold text-gray-900 dark:text-white">
-                <Clock class="inline-block w-5 h-5" /> Start:</span> {{ formattedStartDate }} {{ formattedTime }}</p>
+                  <Clock class="inline-block w-5 h-5" /> Start:
+                </span> {{ formattedStartDate }} {{ formattedTime }}</p>
               <p><span class="font-semibold text-gray-900 dark:text-white">
-                <Tag class="inline-block w-5 h-5" /> Type:</span> {{ event.type }}</p>
+                  <Tag class="inline-block w-5 h-5" /> Type:
+                </span> {{ event.type }}</p>
               <p><span class="font-semibold text-gray-900 dark:text-white">
-                <Clock class="inline-block w-5 h-5" /> End:</span> {{ formattedEndDate }} {{ formattedEndTime }}</p>
+                  <Clock class="inline-block w-5 h-5" /> End:
+                </span> {{ formattedEndDate }} {{ formattedEndTime }}</p>
               <p><span class="font-semibold text-gray-900 dark:text-white">
-                <ClipboardList class="inline-block w-5 h-5" /> Category:</span> {{ event.category }}</p>
+                  <ClipboardList class="inline-block w-5 h-5" /> Category:
+                </span> {{ event.category }}</p>
             </div>
             <br>
             <p><span class="font-semibold text-gray-900 dark:text-white">
-              <Users class="inline-block w-5 h-5" /> Limit Participants:</span> {{ event.limit_participants }}</p>
+                <Users class="inline-block w-5 h-5" /> Limit Participants:
+              </span> {{ event.limit_participants }}</p>
             <p class="pr-16 text-justify"><span class="font-semibold text-gray-900 dark:text-white">
-              <FileText class="inline-block w-5 h-5" /> Description:</span> {{ event.description || 'No description available.' }}</p>
+                <FileText class="inline-block w-5 h-5" /> Description:
+              </span> {{ event.description || 'No description available.' }}</p>
           </div>
 
           <!-- Botão Editar -->
-          <button
-            v-if="props.event.status === 'Upcoming'"
-            @click="router.get(`/events/${props.event.id}/edit`)"
+          <button v-if="props.event.status === 'Upcoming'" @click="router.get(`/events/${props.event.id}/edit`)"
             class="absolute bottom-4 right-4 bg-yellow-500 hover:bg-yellow-600 text-white p-3 rounded-full shadow-lg transition"
-            title="Edit Event"
-          >
+            title="Edit Event">
             <Pencil class="w-5 h-5" />
           </button>
         </div>
@@ -254,6 +257,10 @@ const formattedEndDate = formatDate(props.event?.end_date);
             class="bg-orange-500 hover:bg-orange-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-center flex items-center justify-center gap-2">
             <Mail class="w-5 h-5" /> Schedule Message
           </Link>
+
+          
+
+
         </div>
       </div>
 
@@ -318,3 +325,4 @@ const formattedEndDate = formatDate(props.event?.end_date);
     </div>
   </AppLayout>
 </template>
+

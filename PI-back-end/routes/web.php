@@ -55,6 +55,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/messages/create/{event_id}', [MessageController::class, 'create'])->name('messages.create');
 
     Route::post('/schedule-email', [MessageController::class, 'scheduleEmail']);
+
+    Route::get('/events/{id}/download-qrcode', [EventController::class, 'downloadQrCode']);
 });
 
 
