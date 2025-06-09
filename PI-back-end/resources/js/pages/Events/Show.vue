@@ -247,6 +247,13 @@ const formattedEndDate = formatDate(props.event?.end_date);
             <PlusCircle class="w-5 h-5" /> Create Statistics Form
           </Link>
 
+          <a :href="`/events/${event.id}/download-qrcode`"
+            class="bg-orange-600 hover:bg-orange-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-center flex items-center justify-center gap-2">
+            
+            <ClipboardList class="w-5 h-5" /> Download QR Code 
+            
+          </a>
+
           <p class="font-bold text-gray-800 dark:text-gray-200">Participants</p>
           <Link :href="`/event/${event.id}/participants`"
             class="bg-orange-600 hover:bg-orange-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-center flex items-center justify-center gap-2">
