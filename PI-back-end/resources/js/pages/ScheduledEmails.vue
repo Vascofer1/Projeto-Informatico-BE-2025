@@ -27,12 +27,14 @@
               <td class="border p-2 dark:border-gray-600">{{ job.send_qr }}</td>
               <td class="border p-2 dark:border-gray-600">{{ job.send_at }}</td>
               <td class="border p-2 dark:border-gray-600">
-                <button
-                  @click="cancelJob(job.id)"
-                  class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded transition"
-                >
-                  Cancel
-                </button>
+                <div class="flex justify-center">
+                  <button
+                    @click="cancelJob(job.id)"
+                    class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded transition"
+                  >
+                    Cancel
+                  </button>
+                </div>
               </td>
             </tr>
           </tbody>
@@ -74,7 +76,7 @@ const updateFilter = () => {
 }
 
 function cancelJob(id) {
-  if (confirm('Tens a certeza que queres cancelar esta mensagem agendada?')) {
+  if (confirm('Are you sure you want to cancel this scheduled message?')) {
     router.delete(route('scheduled-emails.destroy', id))
   }
 }

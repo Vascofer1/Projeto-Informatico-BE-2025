@@ -56,7 +56,7 @@ class EventQuestionsController extends Controller
         ]);
     }
 
-    return redirect()->route('events.form.show', $event->id)
+    return redirect()->route('events.index')
         ->with('success', 'Form created successfully.');
 }
 

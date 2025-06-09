@@ -241,10 +241,10 @@ const formattedEndDate = formatDate(props.event?.end_date);
             <ClipboardList class="w-5 h-5" /> View Event Form
           </Link>
 
-          <Link v-if="!formExists"
+          <Link v-if="event.status !== 'Finished' && !formExists"
             :href="`/events/${event.id}/questions`"
             class="bg-orange-600 hover:bg-orange-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-center flex items-center justify-center gap-2">
-            <PlusCircle class="w-5 h-5" /> Create Event Form
+            <PlusCircle class="w-5 h-5" /> Create Statistics Form
           </Link>
 
           <p class="font-bold text-gray-800 dark:text-gray-200">Participants</p>
@@ -254,7 +254,7 @@ const formattedEndDate = formatDate(props.event?.end_date);
           </Link>
 
           <Link v-if="event.status !== 'Finished'" :href="`/messages/create/${event.id}`"
-            class="bg-orange-500 hover:bg-orange-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-center flex items-center justify-center gap-2">
+            class="bg-orange-600 hover:bg-orange-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-center flex items-center justify-center gap-2">
             <Mail class="w-5 h-5" /> Schedule Message
           </Link>
 
@@ -318,7 +318,7 @@ const formattedEndDate = formatDate(props.event?.end_date);
         </div>
           </div>
           <div v-else>
-        <p class="text-gray-700 dark:text-gray-300">Create the event form in order to show more statistics.</p>
+        <p class="text-gray-700 dark:text-gray-300">Create the statistics form in order to show more statistics.</p>
           </div>
         </div>
       </div>

@@ -102,7 +102,7 @@ const submitForm = () => {
 >
     <div class="max-w-5xl mx-auto bg-white/80 backdrop-blur-md shadow-2xl rounded-2xl p-6 sm:p-10">
       <h1 class="text-2xl sm:text-3xl text-center  text-gray-800">
-        Participation Form for <span class="text-3xl sm:text-4xl font-bold">{{ props.event.name }}</span>
+        Statistics Form for <span class="text-3xl sm:text-4xl font-bold">{{ props.event.name }}</span>
       </h1>
       <br>
       <p class="text-center text-md sm:text-lg text-gray-700 mt-2 mb-6">

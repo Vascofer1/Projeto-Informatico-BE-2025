@@ -34,13 +34,13 @@ class SendEventEmail implements ShouldQueue
     private function parseMessage($message, $event, $participant)
     {
         $placeholders = [
-            '{{ nome }}' => $participant->name,
+            '{{ name }}' => $participant->name,
             '{{ email }}' => $participant->email,
-            '{{ evento }}' => $event->name,
-            '{{ data }}' => \Carbon\Carbon::parse($event->start_date)->format('d-m-Y'),
-            '{{ hora }}' => \Carbon\Carbon::parse($event->start_time)->format('H:i'),
-            '{{ local }}' => $event->location,
-            '{{ link_formulario }}' => url('events/' . $event->id . '/form'),
+            '{{ event }}' => $event->name,
+            '{{ date }}' => \Carbon\Carbon::parse($event->start_date)->format('d-m-Y'),
+            '{{ hour }}' => \Carbon\Carbon::parse($event->start_time)->format('H:i'),
+            '{{ location }}' => $event->location,
+            '{{ Formlink }}' => url('events/' . $event->id . '/form'),
         ];
 
         return strtr($message, $placeholders);

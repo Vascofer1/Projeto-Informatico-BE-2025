@@ -142,9 +142,6 @@ const submitForm = () => {
     questions: selected,
   }, {
     onFinish: () => formProcessing.value = false,
-    onSuccess: () => {
-      alert('Form updated successfully!')
-    }
   })
 }
 </script>
@@ -177,7 +174,7 @@ const submitForm = () => {
             <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100">Selected Questions</h2>
             <button
               @click="showCreateCard = true"
-              class="bg-blue-500 text-white px-3 py-1.5 rounded-lg shadow hover:bg-blue-600 transition flex items-center gap-1"
+              class="bg-orange-600 dark:bg-blue-500 text-white px-3 py-1.5 rounded-lg shadow hover:bg-orange-700 dark:hover:bg-blue-600 transition flex items-center gap-1"
             >
               <Plus class="w-4 h-4" /> Add Question
             </button>
@@ -209,7 +206,7 @@ const submitForm = () => {
 
         <!-- Confirm Button -->
         <button
-          class="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 dark:bg-blue-700"
+          class="w-full bg-orange-600 dark:bg-blue-600 text-white py-2 rounded hover:bg-orange-700 dark:bg-blue-700"
           @click="submitForm"
           :disabled="formProcessing"
         >
@@ -237,7 +234,7 @@ const submitForm = () => {
             class="w-full p-2 border border-gray-300 dark:border-gray-700 rounded-lg mb-4 text-gray-800 dark:text-gray-100 bg-white dark:bg-gray-800"></textarea>
 
           <button @click="submitNewQuestion"
-            class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition">
+            class="w-full bg-orange-500 dark:bg-blue-500 text-white py-2 rounded-lg hover:bg-orange-600 dark:hover:bg-blue-600 transition">
             Add Question
           </button>
         </div>

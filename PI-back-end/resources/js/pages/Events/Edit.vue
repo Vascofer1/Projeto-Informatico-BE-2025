@@ -259,18 +259,18 @@ const breadcrumbs: BreadcrumbItem[] = [
         <!-- Buttons -->
         <div class="flex justify-between mt-4">
           <button
-            @click="router.get('/events')"
-            class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded transition"
-          >
-            Cancel
-          </button>
-          <button
             @click="submit"
             class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded transition"
           >
             Confirm Changes
           </button>
-          
+
+          <button
+            @click="router.get('/events')"
+            class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded transition"
+          >
+            Cancel
+          </button>          
         </div>
       </div>
     </div>
