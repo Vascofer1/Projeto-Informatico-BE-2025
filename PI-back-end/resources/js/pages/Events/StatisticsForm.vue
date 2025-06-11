@@ -66,17 +66,29 @@ const newQuestion = reactive({
   optionsText: '',
 })
 
+const errors = reactive({
+  name: '',
+  description: '',
+  options: '',
+})
+
 const submitNewQuestion = async () => {
+  errors.name = ''
+  errors.description = ''
+  errors.options = ''
+
   if (!newQuestion.name.trim()) {
-    alert('Please write a name for the question.')
-    return
+    errors.name = 'The question name is required.'
+  }
+
+  if (!newQuestion.description.trim()) {
+    errors.description = 'The question description is required.'
   }
 
   let options: string[] = []
+  const trimmed = newQuestion.optionsText.trim()
 
   try {
-    const trimmed = newQuestion.optionsText.trim()
-
     if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
       options = JSON.parse(trimmed)
       if (!Array.isArray(options) || options.some(opt => typeof opt !== 'string')) throw new Error()
@@ -88,12 +100,13 @@ const submitNewQuestion = async () => {
     }
 
     if (options.length < 2) {
-      alert('The question must have at least 2 options.')
-      return
+      errors.options = 'The question must have at least 2 options.'
     }
+    } catch {
+    errors.options = 'Invalid format. Enter one option per line.'
+  }
 
-  } catch {
-    alert('Invalid options format. Please provide an option per line.')
+  if (errors.name || errors.description || errors.options) {
     return
   }
 
@@ -110,9 +123,12 @@ const submitNewQuestion = async () => {
     newQuestion.name = ''
     newQuestion.description = ''
     newQuestion.optionsText = ''
+    errors.name = ''
+    errors.description = ''
+    errors.options = ''
     showCreateCard.value = false
   } catch (err) {
-    alert('Erro ao adicionar pergunta.')
+    alert('Error adding question.')
     console.error(err)
   }
 }
@@ -226,12 +242,15 @@ const submitForm = () => {
 
           <input v-model="newQuestion.name" placeholder="Question Name"
             class="w-full p-2 border border-gray-300 dark:border-gray-700 rounded-lg mb-2 text-gray-800 dark:text-gray-100 bg-white dark:bg-gray-800" />
+          <p v-if="errors.name" class="text-sm text-red-500">{{ errors.name }}</p>
 
           <input v-model="newQuestion.description" placeholder="Description"
             class="w-full p-2 border border-gray-300 dark:border-gray-700 rounded-lg mb-2 text-gray-800 dark:text-gray-100 bg-white dark:bg-gray-800" />
+          <p v-if="errors.description" class="text-sm text-red-500">{{ errors.description }}</p>
 
           <textarea v-model="newQuestion.optionsText" placeholder="Options (one per line)"
             class="w-full p-2 border border-gray-300 dark:border-gray-700 rounded-lg mb-4 text-gray-800 dark:text-gray-100 bg-white dark:bg-gray-800"></textarea>
+          <p v-if="errors.options" class="text-sm text-red-500">{{ errors.options }}</p>
 
           <button @click="submitNewQuestion"
             class="w-full bg-orange-500 dark:bg-blue-500 text-white py-2 rounded-lg hover:bg-orange-600 dark:hover:bg-blue-600 transition">
