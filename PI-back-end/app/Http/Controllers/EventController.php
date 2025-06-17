@@ -119,7 +119,7 @@ protected function updateEventStatus()
         'start_time' => 'required',
         'end_date' => 'required|date',
         'end_time' => 'required',
-        'limit_participants' => 'nullable|integer|min:1',
+        'limit_participants' => 'required|integer|min:1',
         'description' => 'nullable|string',
         'image' => 'nullable|image|max:2048', 
         'custom_background' => 'nullable|image|max:2048', 

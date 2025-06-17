@@ -2,6 +2,8 @@
 import { ref, computed, onMounted } from "vue";
 import { router } from "@inertiajs/vue3";
 import { usePage } from "@inertiajs/vue3";
+import AppLayout from '@/layouts/AppLayout.vue';
+import { type BreadcrumbItem } from '@/types';
 
 const page = usePage();
 const errors = computed(() => page.props.errors);
@@ -10,6 +12,15 @@ const props = defineProps({
   event: Object,
   participantsCount: Number,
 });
+
+const isAuthenticated = computed(() => !!page.props.auth?.user);
+
+const breadcrumbs: BreadcrumbItem[] = [
+  {
+    title: `Events / ${props.event.name} / Registration`,
+    href: `/inscricao/${props.event.id}`,
+  },
+];
 
 const isEventFull = computed(() => {
   return props.participantsCount >= props.event.limit_participants;
@@ -141,6 +152,7 @@ const submitForm = () => {
 </script>
 
 <template>
+  <component :is="isAuthenticated ? AppLayout : 'div'" :breadcrumbs="breadcrumbs">
   <div class="min-h-screen p-6" :style="backgroundStyle">
 
     <div class="max-w-4xl mx-auto bg-white/80 backdrop-blur shadow-xl rounded-lg p-6">
@@ -220,4 +232,5 @@ const submitForm = () => {
       </p>
     </div>
   </div>
+  </component>
 </template>

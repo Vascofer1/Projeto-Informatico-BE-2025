@@ -67,12 +67,13 @@ const breadcrumbs: BreadcrumbItem[] = [
         <h2 class="text-2xl font-bold mb-6 text-center text-gray-800 dark:text-white">NEW EVENT</h2>
 
         <!-- Nome -->
-        <h3 class="mt-2 font-bold text-gray-700 dark:text-gray-300">Name</h3>
+        <h3 class="mt-2 font-bold text-gray-700 dark:text-gray-300">Name <span class="text-red-500">*</span></h3>
         <input v-model="form.name" placeholder="Event Name"
           class="w-full p-2 mb-4 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
+        <p v-if="errors.name" class="text-red-500 dark:text-red-400 text-lg">ERROR: {{ errors.name }}</p>
 
         <!-- Tipo -->
-        <h3 class="mt-2 font-bold text-gray-700 dark:text-gray-300">Type</h3>
+        <h3 class="mt-2 font-bold text-gray-700 dark:text-gray-300">Type <span class="text-red-500">*</span></h3>
         <div class="flex space-x-2 mb-4">
           <div class="relative w-1/2">
             <span v-if="!form.type"
@@ -91,9 +92,10 @@ const breadcrumbs: BreadcrumbItem[] = [
           <input v-if="form.type === 'Other'" v-model="form.newType" placeholder="Enter event type"
             class="w-1/2 p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
         </div>
+        <p v-if="errors.type" class="text-red-500 dark:text-red-400 text-lg">ERROR: {{ errors.type }}</p>
 
         <!-- Categoria -->
-        <h3 class="mt-5 font-bold text-gray-700 dark:text-gray-300">Category</h3>
+        <h3 class="mt-5 font-bold text-gray-700 dark:text-gray-300">Category <span class="text-red-500">*</span></h3>
         <div class="flex space-x-2 mb-4">
           <div class="relative w-1/2">
             <span v-if="!form.category"
@@ -112,9 +114,10 @@ const breadcrumbs: BreadcrumbItem[] = [
           <input v-if="form.category === 'Other'" v-model="form.newCategory" placeholder="Enter category"
             class="w-1/2 p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
         </div>
+        <p v-if="errors.category" class="text-red-500 dark:text-red-400 text-lg">ERROR: {{ errors.category }}</p>
 
         <!-- Localização -->
-        <h3 class="mt-5 font-bold text-gray-700 dark:text-gray-300">Location</h3>
+        <h3 class="mt-5 font-bold text-gray-700 dark:text-gray-300">Location <span class="text-red-500">*</span></h3>
         <div class="flex space-x-2 mb-4">
           <div class="relative w-1/2">
             <span v-if="!form.location"
@@ -131,9 +134,10 @@ const breadcrumbs: BreadcrumbItem[] = [
           <input v-if="form.location === 'On-site'" v-model="form.venue" placeholder="Event venue"
             class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
         </div>
+        <p v-if="errors.location" class="text-red-500 dark:text-red-400 text-lg">ERROR: {{ errors.location }}</p>
 
         <!-- Data e Hora de Início -->
-        <h3 class="mt-5 font-bold text-gray-700 dark:text-gray-300">Start Date and Time</h3>
+        <h3 class="mt-5 font-bold text-gray-700 dark:text-gray-300">Start Date and Time <span class="text-red-500">*</span></h3>
         <div class="flex space-x-2 mb-2">
           <input type="date" v-model="form.start_date"
             class="w-1/2 p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
@@ -144,7 +148,7 @@ const breadcrumbs: BreadcrumbItem[] = [
         <p v-if="errors.start_time" class="text-red-500 dark:text-red-400 text-lg">ERROR: {{ errors.start_time }}</p>
 
         <!-- Data e Hora de Término -->
-        <h3 class="mt-4 font-bold text-gray-700 dark:text-gray-300">End Date and Time</h3>
+        <h3 class="mt-4 font-bold text-gray-700 dark:text-gray-300">End Date and Time <span class="text-red-500">*</span></h3>
         <div class="flex space-x-2 mb-2">
           <input type="date" v-model="form.end_date"
             class="w-1/2 p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
@@ -162,10 +166,11 @@ const breadcrumbs: BreadcrumbItem[] = [
         <p class="text-gray-600 dark:text-gray-400 text-sm">Accepted formats: PNG, JPG, JPEG</p>
 
         <!-- Limite de Participantes -->
-        <h3 class="mt-5 font-bold text-gray-700 dark:text-gray-300">Participant Limit</h3>
+        <h3 class="mt-5 font-bold text-gray-700 dark:text-gray-300">Participant Limit <span class="text-red-500">*</span></h3>
         <input v-model="form.limit_participants" type="number" placeholder="Quantity"
           class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white" min="1" />
-
+        <p v-if="errors.limit_participants" class="text-red-500 dark:text-red-400 text-lg">ERROR: {{ errors.limit_participants }}</p>
+        
         <!-- Descrição -->
         <h3 class="mt-5 font-bold text-gray-700 dark:text-gray-300">Description</h3>
         <textarea v-model="form.description"
