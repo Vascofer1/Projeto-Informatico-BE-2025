@@ -62,13 +62,13 @@ class MessageController extends Controller
         $sendTime = Carbon::parse($sendTime, 'Europe/Lisbon')->setTimezone('UTC');
         
         if ($sendTime->isPast() || $sendTime->toDateString() < Carbon::now('UTC')->toDateString()) {
-            return redirect()->back()->with('error', 'A data/hora de envio não pode ser no passado.');
+            return redirect()->back()->with('error', 'The send date/time cannot be in the past.');
         }
         
         dispatch(new SendEventEmail($event, $messageContent, $request->send_qr))->delay($sendTime); //aqui
         \Log::info('Email job dispatched', ['event_id' => $event->id, 'send_time' => $sendTime]);
 
-        return redirect()->back()->with('success', 'Mensagem agendada com sucesso!');
+        return redirect()->back()->with('success', 'Message successfully scheduled!');
 
     }
 
@@ -107,7 +107,7 @@ class MessageController extends Controller
             \Log::info('WhatsApp message job dispatched', ['participant_id' => $participant->id, 'send_time' => $sendTime]);
         }
 
-        return redirect()->back()->with('success', 'Mensagem agendada com sucesso!');
+        return redirect()->back()->with('success', 'Message successfully scheduled!');
     }
 
     public function sendWhatsAppMessage()
@@ -126,7 +126,7 @@ class MessageController extends Controller
 
         return response()->json([
             'message_sid' => $message->sid,
-            'status' => 'Mensagem enviada com sucesso 🚀'
+            'status' => 'Message sent successfully 🚀'
         ]);
     }
 

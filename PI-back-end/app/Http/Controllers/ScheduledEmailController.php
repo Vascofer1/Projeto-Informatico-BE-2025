@@ -64,7 +64,7 @@ class ScheduledEmailController extends Controller
     public function destroy($id)
     {
         DB::table('jobs')->where('id', $id)->delete();
-        return redirect()->back()->with('success', 'Mensagem agendada cancelada com sucesso!');
+        return redirect()->back()->with('success', 'Message deleted successfully.');
     }
 }
 

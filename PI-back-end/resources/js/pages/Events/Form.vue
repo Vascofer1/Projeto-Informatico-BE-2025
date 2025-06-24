@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, reactive } from 'vue'
 import { usePage, router } from '@inertiajs/vue3'
-
+import AppLayout from '@/layouts/AppLayout.vue';
+import { type BreadcrumbItem } from '@/types';
 
 const formSubmitted = ref(false)
 
@@ -23,6 +24,15 @@ const props = defineProps({
     required: true,
   },
 })
+
+const isAuthenticated = computed(() => !!page.props.auth?.user)
+
+const breadcrumbs: BreadcrumbItem[] = [
+  {
+    title: `Events / ${props.event.name} / Statistics Form`,
+    href: `/events/${props.event.id}/form`,
+  },
+];
 
 const answers = reactive<{ [key: number]: string }>({})
 
@@ -96,6 +106,7 @@ const submitForm = () => {
 </script>
 
 <template>
+  <component :is="isAuthenticated ? AppLayout : 'div'" :breadcrumbs="breadcrumbs">
   <div
   class="min-h-screen p-4 sm:p-6"
   :style="categoryBackground"
@@ -155,4 +166,5 @@ const submitForm = () => {
       </p>
     </div>
   </div>
+  </component>
 </template>
