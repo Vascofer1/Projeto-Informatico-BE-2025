@@ -48,7 +48,7 @@ class GlobalStatsController extends Controller
 // ADD: Top 5 eventos com mais participantes confirmados
 $topEvents = DB::table('events')
     ->leftJoin('participants', 'events.id', '=', 'participants.event_id')
-    ->select('events.id', 'events.name', DB::raw("SUM(CASE WHEN participants.presence = 1 THEN 1 ELSE 0 END) as confirmed"))
+    ->select('events.id', 'events.name', DB::raw("SUM(CASE WHEN participants.status = 'Confirmed' THEN 1 ELSE 0 END) as confirmed"))
     ->where('events.start_date', '>=', $startDate)
     ->groupBy('events.id', 'events.name')
     ->orderByDesc('confirmed')
